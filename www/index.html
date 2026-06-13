@@ -69,7 +69,17 @@
     <main class="main-content">
 
       <!-- ========== TODAY TAB ========== -->
+      <!-- ========== TODAY TAB ========== -->
       <section class="tab-panel active" id="panel-today">
+        <!-- Phase Indicator Banner -->
+        <div class="phase-banner packing" id="phase-banner">
+          <div class="phase-title">
+            <span id="phase-emoji">🌅</span>
+            <span id="phase-text" data-i18n="phase_packing">Morning Packing</span>
+          </div>
+          <button class="phase-action-btn" id="btn-toggle-phase" data-i18n="btn_switch_returning">Switch to Return</button>
+        </div>
+
         <!-- Progress bar -->
         <div class="progress-section">
           <div class="progress-label">
@@ -82,7 +92,13 @@
           </div>
         </div>
 
-        <!-- Group filter -->
+        <!-- Step Navigation (Only visible in Morning Packing Phase) -->
+        <div class="step-nav" id="step-nav">
+          <button class="step-btn active" id="step-btn-select" data-step="select" data-i18n="step_select">1. Select Items</button>
+          <button class="step-btn" id="step-btn-pack" data-step="pack" data-i18n="step_pack">2. Pack Bag</button>
+        </div>
+
+        <!-- Group filter (only shown when choosing items or in today's grid if relevant) -->
         <div class="filter-row" id="today-filter-row">
           <button class="filter-chip active" data-group="all" id="today-filter-all" data-i18n="group_all">All</button>
           <button class="filter-chip" data-group="Đi học" id="today-filter-hoc" data-i18n="group_hoc">🏫 School</button>
@@ -100,17 +116,23 @@
         <!-- Empty state -->
         <div class="empty-state hidden" id="today-empty">
           <div class="empty-illustration">🎒</div>
-          <p class="empty-title" data-i18n="empty_today_title">Your bag is empty!</p>
-          <p class="empty-sub" data-i18n-html="empty_today_sub">Go to the <strong>Items</strong> tab to add things you
+          <p class="empty-title" id="today-empty-title" data-i18n="empty_today_title">Your bag is empty!</p>
+          <p class="empty-sub" id="today-empty-sub" data-i18n-html="empty_today_sub">Go to the <strong>Items</strong> tab to add things you
             carry.</p>
         </div>
 
-        <!-- Save day button -->
+        <!-- Save day / Action buttons bar -->
         <div class="save-day-bar" id="save-day-bar">
-          <button class="btn-save-day" id="btn-save-day">
-            <span data-i18n="btn_save_day">📦 Save Today's Pack</span>
+          <button class="btn-save-day" id="btn-action-next" style="display:none">
+            <span data-i18n="btn_next_pack">👉 Continue to Packing</span>
           </button>
-          <p class="save-hint" data-i18n="save_hint">Logs your checked items and flags missed required ones.</p>
+          <button class="btn-save-day" id="btn-action-start" style="display:none">
+            <span data-i18n="btn_start_carry">🚀 Start Carrying</span>
+          </button>
+          <button class="btn-save-day" id="btn-action-finish" style="display:none">
+            <span data-i18n="btn_finish_day">🏡 Finish Day & Return</span>
+          </button>
+          <p class="save-hint" id="save-hint" data-i18n="save_hint_packing">Select items to carry, then pack them.</p>
         </div>
       </section>
 
@@ -243,6 +265,66 @@
               </div>
             </div>
           </div>
+
+          <!-- Return Reminder Settings -->
+          <div class="settings-card">
+            <div class="settings-row" style="margin-bottom: 12px;">
+              <div class="settings-row-label">
+                <span class="settings-icon">⏰</span>
+                <span data-i18n="settings_reminder_title" style="font-family: var(--font-head); font-size: 1.1rem; font-weight: 700;">Return Reminder</span>
+              </div>
+            </div>
+            
+            <div class="settings-row">
+              <div class="settings-row-label">
+                <span class="settings-icon">🔔</span>
+                <span data-i18n="reminder_enable">Enable Reminder</span>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="reminder-enabled" />
+                <span class="toggle-thumb"></span>
+              </label>
+            </div>
+            
+            <div class="reminder-options-container hidden" id="reminder-options">
+              <!-- Mode Selection -->
+              <div class="settings-row">
+                <div class="settings-row-label">
+                  <span class="settings-icon">⚙️</span>
+                  <span data-i18n="reminder_mode">Reminder Mode</span>
+                </div>
+                <div class="mode-switcher">
+                  <button type="button" class="mode-btn active" id="mode-time" data-mode="time" data-i18n="mode_time">Time</button>
+                  <button type="button" class="mode-btn" id="mode-interval" data-mode="interval" data-i18n="mode_interval">Interval</button>
+                </div>
+              </div>
+              
+              <!-- Time Picker -->
+              <div class="settings-row" id="row-reminder-time">
+                <div class="settings-row-label">
+                  <span class="settings-icon">⏰</span>
+                  <span data-i18n="reminder_time_label">Set Time</span>
+                </div>
+                <input type="time" id="reminder-time" class="settings-input" value="17:00" />
+              </div>
+              
+              <!-- Interval Picker -->
+              <div class="settings-row hidden" id="row-reminder-interval">
+                <div class="settings-row-label">
+                  <span class="settings-icon">⏳</span>
+                  <span data-i18n="reminder_interval_label">Every X hours</span>
+                </div>
+                <select id="reminder-interval" class="settings-select">
+                  <option value="1">1 hour</option>
+                  <option value="2">2 hours</option>
+                  <option value="3" selected>3 hours</option>
+                  <option value="4">4 hours</option>
+                  <option value="6">6 hours</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
 
           <!-- About -->
           <div class="settings-card settings-about">

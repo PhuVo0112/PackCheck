@@ -52,6 +52,107 @@ const Storage = {
 };
 
 // ==========================================
+// NOTIFICATIONS ADAPTER
+// Integrates with @capacitor/local-notifications
+// with fallback for browser environment.
+// ==========================================
+const Notifications = {
+  async isAvailable() {
+    return window.Capacitor?.isPluginAvailable('LocalNotifications') ?? false;
+  },
+
+  async requestPermission() {
+    if (!(await this.isAvailable())) return false;
+    try {
+      const permission = await window.Capacitor.Plugins.LocalNotifications.requestPermissions();
+      return permission.display === 'granted';
+    } catch (e) {
+      console.error('[PackCheck] Notifications.requestPermission failed:', e);
+      return false;
+    }
+  },
+
+  async cancelAll() {
+    if (!(await this.isAvailable())) {
+      console.log('[PackCheck] LocalNotifications not available, simulating cancelAll');
+      return;
+    }
+    try {
+      const pending = await window.Capacitor.Plugins.LocalNotifications.getPending();
+      if (pending.notifications?.length > 0) {
+        await window.Capacitor.Plugins.LocalNotifications.cancel({
+          notifications: pending.notifications.map(n => ({ id: n.id }))
+        });
+        console.log('[PackCheck] Cancelled all pending notifications');
+      }
+    } catch (e) {
+      console.error('[PackCheck] Notifications.cancelAll failed:', e);
+    }
+  },
+
+  async scheduleReturnReminders() {
+    const settings = state.settings;
+    if (!settings.reminderEnabled) {
+      await this.cancelAll();
+      return;
+    }
+
+    if (!(await this.isAvailable())) {
+      console.log('[PackCheck] LocalNotifications not available. Simulating schedule with settings:', settings);
+      return;
+    }
+
+    try {
+      // Clean up previous ones first
+      await this.cancelAll();
+
+      const notifications = [];
+      const title = t('notif_return_title');
+      const body = t('notif_return_body');
+
+      if (settings.reminderMode === 'time') {
+        const [hours, minutes] = settings.reminderTime.split(':').map(Number);
+        const triggerDate = new Date();
+        triggerDate.setHours(hours, minutes, 0, 0);
+
+        // If configured time has already passed today, schedule for tomorrow
+        if (triggerDate <= new Date()) {
+          triggerDate.setDate(triggerDate.getDate() + 1);
+        }
+
+        notifications.push({
+          title,
+          body,
+          id: 999,
+          schedule: { at: triggerDate }
+        });
+      } else if (settings.reminderMode === 'interval') {
+        const hoursVal = Number(settings.reminderInterval || 3);
+        // Schedule up to 4 sequential interval triggers to alert the user
+        for (let i = 1; i <= 4; i++) {
+          const triggerTime = new Date(Date.now() + i * hoursVal * 3600 * 1000);
+          notifications.push({
+            title,
+            body,
+            id: 1000 + i,
+            schedule: { at: triggerTime }
+          });
+        }
+      }
+
+      if (notifications.length > 0) {
+        // Request permission on the fly just in case
+        await this.requestPermission();
+        await window.Capacitor.Plugins.LocalNotifications.schedule({ notifications });
+        console.log('[PackCheck] Scheduled notifications successfully:', notifications);
+      }
+    } catch (e) {
+      console.error('[PackCheck] Notifications.scheduleReturnReminders failed:', e);
+    }
+  }
+};
+
+// ==========================================
 // SAFE JSON PARSE
 // Each key is parsed independently — a corrupt
 // key only resets that key, not everything else.
@@ -109,6 +210,29 @@ const STRINGS = {
     settings_clear_hint: 'Erases all items, history, and settings permanently.',
     settings_clear_confirm: 'This will erase ALL items, history, and settings. This cannot be undone. Continue?',
     about_desc: 'Your cozy daily carry checklist planner.',
+    
+    // Pack & Return
+    phase_packing: 'Morning Packing 🌅',
+    phase_returning: 'Evening Return 🏡',
+    btn_switch_returning: 'Switch to Return',
+    btn_switch_packing: 'Switch to Packing',
+    step_select: '1. Select Items',
+    step_pack: '2. Pack Bag',
+    btn_next_pack: '👉 Continue to Packing',
+    btn_start_carry: '🚀 Start Carrying',
+    btn_finish_day: '🏡 Finish Day & Return',
+    save_hint_select: 'Select items you want to carry today.',
+    save_hint_packing: 'Pack the selected items into your bag.',
+    save_hint_returning: 'Check off items as you put them back in your bag.',
+    settings_reminder_title: '⏰ Return Reminder',
+    reminder_enable: 'Enable Reminder',
+    reminder_mode: 'Reminder Mode',
+    mode_time: 'Time',
+    mode_interval: 'Interval',
+    reminder_time_label: 'Set Time',
+    reminder_interval_label: 'Every X hours',
+    notif_return_title: 'PackCheck 🎒',
+    notif_return_body: 'Time to go home! Double check your bag so you do not leave anything behind.'
   },
   vi: {
     tab_today: 'Hôm nay', tab_items: 'Đồ vật', tab_history: 'Lịch sử', tab_settings: 'Cài đặt',
@@ -148,6 +272,29 @@ const STRINGS = {
     settings_clear_hint: 'Xoá hết đồ vật, lịch sử và cài đặt vĩnh viễn.',
     settings_clear_confirm: 'Thao tác này sẽ xoá TOÀN BỘ đồ vật, lịch sử và cài đặt và không thể hoàn tác. Tiếp tục?',
     about_desc: 'Ứng dụng nhắc nhở đồ mang theo hằng ngày.',
+    
+    // Pack & Return
+    phase_packing: 'Buổi sáng: Đi 🌅',
+    phase_returning: 'Buổi chiều: Về 🏡',
+    btn_switch_returning: 'Chuyển sang Pha Về',
+    btn_switch_packing: 'Chuyển sang Pha Đi',
+    step_select: '1. Chọn đồ mang',
+    step_pack: '2. Xếp đồ vào balo',
+    btn_next_pack: '👉 Tiếp tục xếp đồ',
+    btn_start_carry: '🚀 Bắt đầu đi thôi!',
+    btn_finish_day: '🏡 Hoàn thành ngày & Về',
+    save_hint_select: 'Chọn các món đồ bạn muốn mang theo hôm nay.',
+    save_hint_packing: 'Hãy xếp các món đồ đã chọn vào balo của bạn.',
+    save_hint_returning: 'Tích chọn đồ khi bạn xếp chúng lại vào balo để đi về.',
+    settings_reminder_title: '⏰ Nhắc nhở lúc về',
+    reminder_enable: 'Bật nhắc nhở',
+    reminder_mode: 'Chế độ nhắc',
+    mode_time: 'Hẹn giờ',
+    mode_interval: 'Định kỳ',
+    reminder_time_label: 'Chọn giờ',
+    reminder_interval_label: 'Nhắc mỗi X giờ',
+    notif_return_title: 'PackCheck 🎒',
+    notif_return_body: 'Đến giờ ra về rồi! Hãy kiểm tra túi xách để không bỏ quên món đồ nào nhé.'
   }
 };
 
@@ -174,20 +321,34 @@ const STORAGE_KEYS = {
   ITEMS:   'packcheck_items',
   HISTORY: 'packcheck_history',
   TODAY:   'packcheck_today_state',
-  LANG:    'packcheck_lang'
+  LANG:    'packcheck_lang',
+  SETTINGS: 'packcheck_settings'
 };
 
 let state = {
   items: [],
   history: [],
-  todayChecked: {},
   todayFilter: 'all',
   itemsFilter: 'all',
   activeTab: 'today',
   deleteTargetId: null,
   selectedGroup: null,
   formOpen: true,
-  lang: 'en'
+  lang: 'en',
+  todayState: {
+    date: '',
+    phase: 'packing', // 'packing' | 'returning'
+    step: 'select',   // 'select' | 'pack'
+    carry: {},        // { [itemId]: boolean }
+    packed: {},       // { [itemId]: boolean }
+    returned: {}      // { [itemId]: boolean }
+  },
+  settings: {
+    reminderEnabled: false,
+    reminderMode: 'time', // 'time' | 'interval'
+    reminderTime: '17:00',
+    reminderInterval: '3'
+  }
 };
 
 // ==========================================
@@ -200,7 +361,7 @@ async function migrateFromLocalStorage() {
   const migrationDone = await Storage.get('packcheck_migrated_v1');
   if (migrationDone === 'true') return; // already done
 
-  const legacyKeys = Object.values(STORAGE_KEYS);
+  const legacyKeys = [STORAGE_KEYS.ITEMS, STORAGE_KEYS.HISTORY, STORAGE_KEYS.TODAY, STORAGE_KEYS.LANG];
   let hadData = false;
 
   for (const key of legacyKeys) {
@@ -220,11 +381,12 @@ async function migrateFromLocalStorage() {
 // LOAD — async, each key parsed independently
 // ==========================================
 async function loadState() {
-  const [itemsStr, historyStr, langVal, todayStr] = await Promise.all([
+  const [itemsStr, historyStr, langVal, todayStr, settingsStr] = await Promise.all([
     Storage.get(STORAGE_KEYS.ITEMS),
     Storage.get(STORAGE_KEYS.HISTORY),
     Storage.get(STORAGE_KEYS.LANG),
     Storage.get(STORAGE_KEYS.TODAY),
+    Storage.get(STORAGE_KEYS.SETTINGS)
   ]);
 
   // Each key parsed independently — one corrupt key won't wipe the rest
@@ -232,9 +394,45 @@ async function loadState() {
   state.history = safeParse(historyStr, []);
   state.lang    = langVal || 'en';
 
-  const todayRaw = safeParse(todayStr, {});
+  // Load Settings
+  const loadedSettings = safeParse(settingsStr, {});
+  state.settings = {
+    reminderEnabled: loadedSettings.reminderEnabled ?? false,
+    reminderMode: loadedSettings.reminderMode ?? 'time',
+    reminderTime: loadedSettings.reminderTime ?? '17:00',
+    reminderInterval: loadedSettings.reminderInterval ?? '3'
+  };
+
+  // Load Today Phase State
   const todayKey = getTodayKey();
-  state.todayChecked = (todayRaw.date === todayKey) ? (todayRaw.checked || {}) : {};
+  const todayRaw = safeParse(todayStr, {});
+  
+  if (todayRaw.date === todayKey) {
+    state.todayState = {
+      date: todayKey,
+      phase: todayRaw.phase || 'packing',
+      step: todayRaw.step || 'select',
+      carry: todayRaw.carry || {},
+      packed: todayRaw.packed || {},
+      returned: todayRaw.returned || {}
+    };
+  } else {
+    // Start of a brand new day!
+    state.todayState = {
+      date: todayKey,
+      phase: 'packing',
+      step: 'select',
+      carry: {},
+      packed: {},
+      returned: {}
+    };
+    // Auto-select required items to be carried today
+    state.items.forEach(item => {
+      if (item.required) {
+        state.todayState.carry[item.id] = true;
+      }
+    });
+  }
 }
 
 // ==========================================
@@ -252,17 +450,30 @@ async function saveLang() {
   await Storage.set(STORAGE_KEYS.LANG, state.lang);
 }
 
-async function saveTodayChecked() {
+async function saveTodayState() {
   await Storage.set(STORAGE_KEYS.TODAY, JSON.stringify({
-    date: getTodayKey(),
-    checked: state.todayChecked
+    date: state.todayState.date || getTodayKey(),
+    phase: state.todayState.phase,
+    step: state.todayState.step,
+    carry: state.todayState.carry,
+    packed: state.todayState.packed,
+    returned: state.todayState.returned
   }));
+}
+
+async function saveSettings() {
+  await Storage.set(STORAGE_KEYS.SETTINGS, JSON.stringify(state.settings));
 }
 
 // ==========================================
 // UTILS
 // ==========================================
-function getTodayKey() { return new Date().toISOString().slice(0, 10); }
+function getTodayKey() {
+  const d = new Date();
+  const offset = d.getTimezoneOffset();
+  const localDate = new Date(d.getTime() - (offset * 60 * 1000));
+  return localDate.toISOString().slice(0, 10);
+}
 
 function formatDate(dateStr) {
   const d = new Date(dateStr + 'T00:00:00');
@@ -347,30 +558,77 @@ function renderHeaderDate() {
 // TODAY TAB
 // ==========================================
 function getFilteredTodayItems() {
-  return state.todayFilter === 'all'
-    ? state.items
-    : state.items.filter(i => i.group === state.todayFilter);
+  let list = [];
+  if (state.todayState.phase === 'packing') {
+    if (state.todayState.step === 'select') {
+      list = state.items;
+    } else {
+      list = state.items.filter(i => state.todayState.carry[i.id]);
+    }
+  } else {
+    // Returning phase
+    list = state.items.filter(i => state.todayState.carry[i.id]);
+  }
+  
+  if (state.todayFilter !== 'all') {
+    list = list.filter(i => i.group === state.todayFilter);
+  }
+  return list;
 }
 
 function renderToday() {
-  const grid       = document.getElementById('today-grid');
-  const emptyEl    = document.getElementById('today-empty');
-  const saveDayBar = document.getElementById('save-day-bar');
+  const banner = document.getElementById('phase-banner');
+  const emojiEl = document.getElementById('phase-emoji');
+  const textEl = document.getElementById('phase-text');
+  const toggleBtn = document.getElementById('btn-toggle-phase');
+  const stepNav = document.getElementById('step-nav');
+  const grid = document.getElementById('today-grid');
+  const emptyEl = document.getElementById('today-empty');
+  const emptyTitle = document.getElementById('today-empty-title');
+  const emptySub = document.getElementById('today-empty-sub');
+  const filterRow = document.getElementById('today-filter-row');
+
+  const nextBtn = document.getElementById('btn-action-next');
+  const startBtn = document.getElementById('btn-action-start');
+  const finishBtn = document.getElementById('btn-action-finish');
+  const hintEl = document.getElementById('save-hint');
 
   updateProgressBar();
+
+  // Update Banner based on phase
+  if (state.todayState.phase === 'packing') {
+    banner.className = 'phase-banner packing';
+    emojiEl.textContent = '🌅';
+    textEl.textContent = t('phase_packing');
+    toggleBtn.textContent = t('btn_switch_returning');
+    stepNav.style.display = 'flex';
+    filterRow.style.display = 'flex';
+
+    // Update step tabs active state
+    document.getElementById('step-btn-select').classList.toggle('active', state.todayState.step === 'select');
+    document.getElementById('step-btn-pack').classList.toggle('active', state.todayState.step === 'pack');
+  } else {
+    banner.className = 'phase-banner returning';
+    emojiEl.textContent = '🏡';
+    textEl.textContent = t('phase_returning');
+    toggleBtn.textContent = t('btn_switch_packing');
+    stepNav.style.display = 'none';
+    filterRow.style.display = 'flex';
+  }
 
   if (state.items.length === 0) {
     grid.innerHTML = '';
     emptyEl.classList.remove('hidden');
-    saveDayBar.style.opacity = '0.4';
-    saveDayBar.style.pointerEvents = 'none';
+    emptyTitle.textContent = t('empty_today_title');
+    emptySub.innerHTML = t('empty_today_sub');
+    
+    nextBtn.style.display = 'none';
+    startBtn.style.display = 'none';
+    finishBtn.style.display = 'none';
     return;
   }
 
   emptyEl.classList.add('hidden');
-  saveDayBar.style.opacity = '1';
-  saveDayBar.style.pointerEvents = 'auto';
-
   const items = getFilteredTodayItems();
   grid.innerHTML = '';
 
@@ -379,13 +637,112 @@ function renderToday() {
       <div class="empty-illustration" style="font-size:2.5rem">🔍</div>
       <p class="empty-title" style="font-size:1rem">${t('empty_group')}</p>
     </div>`;
-    return;
+  } else {
+    items.forEach(item => {
+      grid.appendChild(buildTodayCard(item));
+    });
   }
 
-  items.forEach(item => grid.appendChild(buildTodayCard(item, !!state.todayChecked[item.id])));
+  // Update action buttons and hints at the bottom
+  nextBtn.style.display = 'none';
+  startBtn.style.display = 'none';
+  finishBtn.style.display = 'none';
+
+  if (state.todayState.phase === 'packing') {
+    if (state.todayState.step === 'select') {
+      nextBtn.style.display = 'block';
+      hintEl.textContent = t('save_hint_select');
+    } else {
+      startBtn.style.display = 'block';
+      hintEl.textContent = t('save_hint_packing');
+      
+      // Enable "Start Carrying" button only when all carried items are packed
+      const totalToPack = state.items.filter(i => state.todayState.carry[i.id]).length;
+      const packedCount = state.items.filter(i => state.todayState.carry[i.id] && state.todayState.packed[i.id]).length;
+      
+      startBtn.disabled = (totalToPack === 0 || packedCount < totalToPack);
+      startBtn.style.opacity = startBtn.disabled ? '0.5' : '1';
+    }
+  } else {
+    finishBtn.style.display = 'block';
+    hintEl.textContent = t('save_hint_returning');
+  }
 }
 
-function buildTodayCard(item, checked) {
+function buildTodayCard(item) {
+  const phase = state.todayState.phase;
+  const step = state.todayState.step;
+  
+  if (phase === 'packing' && step === 'select') {
+    return buildTodaySelectCard(item);
+  } else {
+    // Packing step 2 or Returning phase: list is checkable cards
+    const isChecked = (phase === 'packing') 
+      ? !!state.todayState.packed[item.id] 
+      : !!state.todayState.returned[item.id];
+    return buildTodayChecklistCard(item, isChecked);
+  }
+}
+
+function buildTodaySelectCard(item) {
+  const div = document.createElement('div');
+  const isSelected = !!state.todayState.carry[item.id];
+  
+  div.className = `select-card${isSelected ? ' selected' : ''}${item.required ? ' required' : ''}`;
+  div.dataset.id = item.id;
+  div.setAttribute('role', 'checkbox');
+  div.setAttribute('aria-checked', isSelected ? 'true' : 'false');
+  div.setAttribute('tabindex', '0');
+
+  const photoHTML = item.photo
+    ? `<img class="card-photo" src="${item.photo}" alt="${escapeHtml(item.name)}" loading="lazy" style="height: 100px; width: 100%; object-fit: cover; border-radius: var(--radius-sm);" />`
+    : `<div class="card-photo-placeholder" style="height: 100px; display: flex; align-items: center; justify-content: center; background: var(--cream); font-size: 2rem; border-radius: var(--radius-sm);">${getItemEmoji(item)}</div>`;
+  
+  const noteHTML = item.note
+    ? `<div class="card-note" style="font-size: 0.75rem; color: var(--text-mid); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(item.note)}">${escapeHtml(item.note)}</div>` : '';
+  
+  const groupHTML = item.group
+    ? `<span class="card-group-tag ${getGroupCls(item.group)}" style="font-size: 0.65rem; padding: 2px 6px; border-radius: 10px;">${escapeHtml(getGroupLabel(item.group))}</span>` : '';
+  
+  const indicatorText = item.required 
+    ? t('required_badge') 
+    : isSelected ? (state.lang === 'vi' ? 'Mang đi' : 'Carry') : (state.lang === 'vi' ? 'Để nhà' : 'Leave');
+
+  div.innerHTML = `
+    <div style="position: relative;">
+      ${photoHTML}
+    </div>
+    <div class="card-body" style="padding: 4px 0 0; display: flex; flex-direction: column; gap: 4px;">
+      <div class="card-name" style="font-weight: 700; font-size: 0.9rem; color: var(--text-dark); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</div>
+      ${noteHTML}
+      <div class="select-card-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+        ${groupHTML}
+        <span class="select-indicator" style="font-size: 0.7rem; font-weight: 700; padding: 3px 8px; border-radius: 12px; background: ${item.required ? 'var(--peach-light)' : isSelected ? 'var(--sage-light)' : 'var(--cream-dark)'}; color: ${item.required ? 'var(--peach-dark)' : isSelected ? 'var(--sage-dark)' : 'var(--text-mid)'};">${indicatorText}</span>
+      </div>
+    </div>`;
+
+  const toggleSelect = () => {
+    if (item.required) {
+      showToast(state.lang === 'vi' ? '⭐ Món đồ này bắt buộc mang!' : '⭐ This item is required!', 'info');
+      return;
+    }
+    state.todayState.carry[item.id] = !state.todayState.carry[item.id];
+    saveTodayState().catch(console.error);
+    renderToday();
+  };
+
+  div.addEventListener('click', toggleSelect);
+  div.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleSelect();
+    }
+  });
+
+  return div;
+}
+
+function buildTodayChecklistCard(item, checked) {
   const div = document.createElement('div');
   div.className = `today-card${checked ? ' checked' : ''}`;
   div.dataset.id = item.id;
@@ -404,13 +761,16 @@ function buildTodayCard(item, checked) {
   const requiredHTML = item.required
     ? `<span class="required-badge">${t('required_badge')}</span>` : '';
 
+  const checkPathColor = state.todayState.phase === 'packing' ? '#E74C3C' : '#5DADE2';
+  const stampStyle = state.todayState.phase === 'packing' ? '' : 'border-color: #5DADE2; color: #5DADE2;';
+
   div.innerHTML = `
     <div class="card-photo-wrap">${photoHTML}</div>
     <div class="check-overlay">
-      <div class="check-stamp">
+      <div class="check-stamp" style="${stampStyle}">
         <div class="check-stamp-inner">
           <svg class="check-svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path class="check-path" d="M4 12.5 L9 18 L20 7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path class="check-path" d="M4 12.5 L9 18 L20 7" stroke="${checkPathColor}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
       </div>
@@ -421,60 +781,119 @@ function buildTodayCard(item, checked) {
       <div class="card-footer">${groupHTML}${requiredHTML}</div>
     </div>`;
 
-  div.addEventListener('click', () => toggleCheck(item.id, div));
+  const handleCheck = () => {
+    const phase = state.todayState.phase;
+    if (phase === 'packing') {
+      state.todayState.packed[item.id] = !state.todayState.packed[item.id];
+    } else {
+      state.todayState.returned[item.id] = !state.todayState.returned[item.id];
+    }
+    
+    saveTodayState().catch(console.error);
+    
+    const isNowChecked = phase === 'packing' 
+      ? !!state.todayState.packed[item.id] 
+      : !!state.todayState.returned[item.id];
+      
+    div.classList.toggle('checked', isNowChecked);
+    div.setAttribute('aria-pressed', isNowChecked ? 'true' : 'false');
+    
+    renderToday();
+  };
+
+  div.addEventListener('click', handleCheck);
   div.addEventListener('keydown', e => {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleCheck(item.id, div); }
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleCheck(); }
   });
   return div;
 }
 
-function toggleCheck(itemId, cardEl) {
-  state.todayChecked[itemId] = !state.todayChecked[itemId];
-  // fire-and-forget — UI updates immediately, disk write in background
-  saveTodayChecked().catch(console.error);
-  cardEl.classList.toggle('checked', !!state.todayChecked[itemId]);
-  cardEl.setAttribute('aria-pressed', state.todayChecked[itemId] ? 'true' : 'false');
-  updateProgressBar();
-}
-
 function updateProgressBar() {
-  const total   = state.items.length;
-  const checked = Object.values(state.todayChecked).filter(Boolean).length;
-  const pct     = total === 0 ? 0 : Math.round((checked / total) * 100);
-
-  document.getElementById('progress-text').textContent = `${checked} / ${total} ${t('progress_packed')}`;
+  const phase = state.todayState.phase;
+  const step = state.todayState.step;
+  
+  let total = 0;
+  let checked = 0;
+  let label = '';
+  
+  if (phase === 'packing') {
+    if (step === 'select') {
+      total = state.items.length;
+      checked = state.items.filter(i => state.todayState.carry[i.id]).length;
+      label = state.lang === 'vi' ? 'chọn mang' : 'selected';
+    } else {
+      total = state.items.filter(i => state.todayState.carry[i.id]).length;
+      checked = state.items.filter(i => state.todayState.carry[i.id] && state.todayState.packed[i.id]).length;
+      label = t('progress_packed');
+    }
+  } else {
+    total = state.items.filter(i => state.todayState.carry[i.id]).length;
+    checked = state.items.filter(i => state.todayState.carry[i.id] && state.todayState.returned[i.id]).length;
+    label = state.lang === 'vi' ? 'đã mang về' : 'returned';
+  }
+  
+  const pct = total === 0 ? 0 : Math.round((checked / total) * 100);
+  
+  document.getElementById('progress-text').textContent = `${checked} / ${total} ${label}`;
   document.getElementById('progress-fill').style.width = `${pct}%`;
   document.getElementById('progress-bar-container').setAttribute('aria-valuenow', pct);
-
+  
   const emojis = ['🌱','🐣','🌸','🌟','⚡','🎉'];
   const idx = pct === 0 ? 0 : pct < 30 ? 1 : pct < 60 ? 2 : pct < 90 ? 3 : pct < 100 ? 4 : 5;
   document.getElementById('progress-emoji').textContent = emojis[idx];
 }
 
-function saveDay() {
-  const todayKey     = getTodayKey();
-  const checkedIds   = Object.keys(state.todayChecked).filter(id => state.todayChecked[id]);
-  const checkedItems = checkedIds.map(id => state.items.find(i => i.id === id)).filter(Boolean);
-  const missed       = state.items.filter(i => i.required && !state.todayChecked[i.id]);
-
+async function saveDay() {
+  const todayKey = getTodayKey();
+  
+  // Carried items
+  const carryItems = state.items.filter(i => state.todayState.carry[i.id]);
+  // Successfully returned items
+  const returnedItems = carryItems.filter(i => state.todayState.returned[i.id]);
+  // Missed items
+  const missedItems = carryItems.filter(i => !state.todayState.returned[i.id]);
+  
   const entry = {
     date: todayKey,
-    checkedCount: checkedItems.length,
-    totalCount: state.items.length,
-    checked: checkedItems.map(i => ({ id: i.id, name: i.name, group: i.group })),
-    missed:  missed.map(i => ({ id: i.id, name: i.name, group: i.group }))
+    checkedCount: returnedItems.length,
+    totalCount: carryItems.length,
+    checked: returnedItems.map(i => ({ id: i.id, name: i.name, group: i.group })),
+    missed: missedItems.map(i => ({ id: i.id, name: i.name, group: i.group }))
   };
-
+  
+  // Save in history
   state.history = state.history.filter(h => h.date !== todayKey);
   state.history.unshift(entry);
   if (state.history.length > 30) state.history = state.history.slice(0, 30);
-
-  // fire-and-forget
-  saveHistory().catch(console.error);
-
-  const missedMsg = missed.length > 0 ? tf('toast_missed_msg', missed.length) : '';
-  showToast(tf('toast_saved', checkedItems.length, state.items.length) + missedMsg,
-    missed.length > 0 ? 'error' : 'success', 3500);
+  
+  await saveHistory();
+  
+  // Clean up today state
+  state.todayState = {
+    date: todayKey,
+    phase: 'packing',
+    step: 'select',
+    carry: {},
+    packed: {},
+    returned: {}
+  };
+  
+  // Auto-select required items for next packing cycle
+  state.items.forEach(item => {
+    if (item.required) {
+      state.todayState.carry[item.id] = true;
+    }
+  });
+  
+  await saveTodayState();
+  await Notifications.cancelAll();
+  
+  const missedCount = missedItems.length;
+  const missedMsg = missedCount > 0 ? tf('toast_missed_msg', missedCount) : '';
+  showToast(tf('toast_saved', returnedItems.length, carryItems.length) + missedMsg,
+    missedCount > 0 ? 'error' : 'success', 3500);
+    
+  renderToday();
 }
 
 function initTodayFilters() {
@@ -572,14 +991,19 @@ function closeModal() {
   state.deleteTargetId = null;
   document.getElementById('modal-overlay').classList.add('hidden');
 }
-
 function confirmDelete() {
   if (!state.deleteTargetId) return;
   state.items = state.items.filter(i => i.id !== state.deleteTargetId);
-  delete state.todayChecked[state.deleteTargetId];
+  
+  // Clean up from today's state
+  delete state.todayState.carry[state.deleteTargetId];
+  delete state.todayState.packed[state.deleteTargetId];
+  delete state.todayState.returned[state.deleteTargetId];
+  
   // fire-and-forget
   saveItems().catch(console.error);
-  saveTodayChecked().catch(console.error);
+  saveTodayState().catch(console.error);
+  
   closeModal();
   renderItems();
   updateProgressBar();
@@ -766,12 +1190,46 @@ function buildHistoryBody(entry) {
 // SETTINGS TAB
 // ==========================================
 function renderSettings() {
+  // Lang switcher buttons
   document.querySelectorAll('.lang-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.lang === state.lang);
   });
+
+  // Reminder settings checkbox & container visibility
+  const enabledCheckbox = document.getElementById('reminder-enabled');
+  if (enabledCheckbox) {
+    enabledCheckbox.checked = state.settings.reminderEnabled;
+  }
+  
+  const optionsContainer = document.getElementById('reminder-options');
+  if (optionsContainer) {
+    optionsContainer.classList.toggle('hidden', !state.settings.reminderEnabled);
+  }
+
+  // Reminder Mode switcher buttons
+  const mode = state.settings.reminderMode;
+  const modeTimeBtn = document.getElementById('mode-time');
+  const modeIntervalBtn = document.getElementById('mode-interval');
+  if (modeTimeBtn && modeIntervalBtn) {
+    modeTimeBtn.classList.toggle('active', mode === 'time');
+    modeIntervalBtn.classList.toggle('active', mode === 'interval');
+  }
+
+  // Reminder pickers visibility
+  const timeRow = document.getElementById('row-reminder-time');
+  const intervalRow = document.getElementById('row-reminder-interval');
+  if (timeRow) timeRow.classList.toggle('hidden', mode !== 'time');
+  if (intervalRow) intervalRow.classList.toggle('hidden', mode !== 'interval');
+
+  // Set values of pickers
+  const timeInput = document.getElementById('reminder-time');
+  const intervalSelect = document.getElementById('reminder-interval');
+  if (timeInput) timeInput.value = state.settings.reminderTime;
+  if (intervalSelect) intervalSelect.value = state.settings.reminderInterval;
 }
 
 function initSettings() {
+  // Language button actions
   document.querySelectorAll('.lang-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       if (btn.dataset.lang === state.lang) return;
@@ -782,18 +1240,91 @@ function initSettings() {
       if (state.activeTab === 'today')   renderToday();
       if (state.activeTab === 'items')   renderItems();
       if (state.activeTab === 'history') renderHistory();
+      if (state.activeTab === 'settings') renderSettings();
     });
   });
 
+  // Reminder active checkbox toggle
+  const enabledCheckbox = document.getElementById('reminder-enabled');
+  if (enabledCheckbox) {
+    enabledCheckbox.addEventListener('change', async e => {
+      state.settings.reminderEnabled = e.target.checked;
+      document.getElementById('reminder-options').classList.toggle('hidden', !e.target.checked);
+      await saveSettings();
+      
+      if (e.target.checked) {
+        await Notifications.requestPermission();
+      } else {
+        await Notifications.cancelAll();
+      }
+    });
+  }
+
+  // Reminder Mode buttons action
+  const modeTimeBtn = document.getElementById('mode-time');
+  const modeIntervalBtn = document.getElementById('mode-interval');
+  
+  const setMode = async (mode) => {
+    state.settings.reminderMode = mode;
+    modeTimeBtn.classList.toggle('active', mode === 'time');
+    modeIntervalBtn.classList.toggle('active', mode === 'interval');
+    document.getElementById('row-reminder-time').classList.toggle('hidden', mode !== 'time');
+    document.getElementById('row-reminder-interval').classList.toggle('hidden', mode !== 'interval');
+    await saveSettings();
+  };
+  
+  if (modeTimeBtn) modeTimeBtn.addEventListener('click', () => setMode('time'));
+  if (modeIntervalBtn) modeIntervalBtn.addEventListener('click', () => setMode('interval'));
+
+  // Time picker input action
+  const timeInput = document.getElementById('reminder-time');
+  if (timeInput) {
+    timeInput.addEventListener('change', async e => {
+      state.settings.reminderTime = e.target.value;
+      await saveSettings();
+    });
+  }
+
+  // Interval select selector action
+  const intervalSelect = document.getElementById('reminder-interval');
+  if (intervalSelect) {
+    intervalSelect.addEventListener('change', async e => {
+      state.settings.reminderInterval = e.target.value;
+      await saveSettings();
+    });
+  }
+
+  // Clear data action
   document.getElementById('btn-clear-data').addEventListener('click', async () => {
     if (!confirm(t('settings_clear_confirm'))) return;
     await Promise.all([
       Storage.remove(STORAGE_KEYS.ITEMS),
       Storage.remove(STORAGE_KEYS.HISTORY),
       Storage.remove(STORAGE_KEYS.TODAY),
+      Storage.remove(STORAGE_KEYS.SETTINGS),
       Storage.remove('packcheck_migrated_v1'),
     ]);
-    state.items = []; state.history = []; state.todayChecked = {};
+    
+    state.items = []; 
+    state.history = []; 
+    state.todayState = {
+      date: getTodayKey(),
+      phase: 'packing',
+      step: 'select',
+      carry: {},
+      packed: {},
+      returned: {}
+    };
+    state.settings = {
+      reminderEnabled: false,
+      reminderMode: 'time',
+      reminderTime: '17:00',
+      reminderInterval: '3'
+    };
+    
+    await Notifications.cancelAll();
+    
+    renderSettings();
     updateProgressBar();
     showToast(t('toast_cleared'), 'info');
   });
@@ -812,7 +1343,6 @@ function maybeSeedDemo() {
     { id: genId(), name: 'Earphones',    photo: null, note: 'Check battery!',       group: 'Đi chơi',  required: false },
     { id: genId(), name: 'Work Badge',   photo: null, note: null,                   group: 'Đi làm',   required: true  },
   ];
-  // fire-and-forget seed save
   saveItems().catch(console.error);
 }
 
@@ -843,7 +1373,54 @@ async function init() {
   initAddItemForm();
   initSettings();
 
-  document.getElementById('btn-save-day').addEventListener('click', saveDay);
+  // Wire up 2-phase UI buttons
+  document.getElementById('btn-toggle-phase').addEventListener('click', () => {
+    const nextPhase = state.todayState.phase === 'packing' ? 'returning' : 'packing';
+    const confirmMsg = state.lang === 'vi'
+      ? `Bạn có chắc muốn chuyển sang ${nextPhase === 'returning' ? 'Pha Về (Trả đồ)' : 'Pha Đi (Xếp đồ)'}?`
+      : `Are you sure you want to switch to ${nextPhase === 'returning' ? 'Returning Phase' : 'Packing Phase'}?`;
+    
+    if (confirm(confirmMsg)) {
+      state.todayState.phase = nextPhase;
+      if (nextPhase === 'packing') state.todayState.step = 'select';
+      saveTodayState().catch(console.error);
+      renderToday();
+    }
+  });
+
+  document.getElementById('step-btn-select').addEventListener('click', () => {
+    state.todayState.step = 'select';
+    saveTodayState().catch(console.error);
+    renderToday();
+  });
+
+  document.getElementById('step-btn-pack').addEventListener('click', () => {
+    state.todayState.step = 'pack';
+    saveTodayState().catch(console.error);
+    renderToday();
+  });
+
+  document.getElementById('btn-action-next').addEventListener('click', () => {
+    state.todayState.step = 'pack';
+    saveTodayState().catch(console.error);
+    renderToday();
+  });
+
+  document.getElementById('btn-action-start').addEventListener('click', async () => {
+    state.todayState.phase = 'returning';
+    await saveTodayState();
+    await Notifications.scheduleReturnReminders();
+    
+    const carryCount = state.items.filter(i => state.todayState.carry[i.id]).length;
+    showToast(state.lang === 'vi' 
+      ? `🚀 Bắt đầu hành trình! Đã mang ${carryCount} đồ vật.` 
+      : `🚀 Safe travels! Carrying ${carryCount} items.`, 'success');
+      
+    renderToday();
+  });
+
+  document.getElementById('btn-action-finish').addEventListener('click', saveDay);
+
   document.getElementById('modal-confirm').addEventListener('click', confirmDelete);
   document.getElementById('modal-cancel').addEventListener('click', closeModal);
   document.getElementById('modal-overlay').addEventListener('click', e => {
@@ -856,3 +1433,4 @@ async function init() {
 }
 
 document.addEventListener('DOMContentLoaded', init);
+
