@@ -13,7 +13,7 @@ yarn-error.log*
 /.next/
 
 # Capacitor specific (Các file cấu hình tạm của mobile)
-www/
+
 capacitor.config.json.timestamp-*
 
 # OS systems files (File rác của hệ điều hành)
