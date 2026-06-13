@@ -1,5 +1,6 @@
 {
   "appId": "com.fuvo.packcheck",
   "appName": "PackCheck",
-  "webDir": "."
+  "webDir": "www",
+  "bundledWebRuntime": false
 }
