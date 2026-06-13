@@ -1,0 +1,36 @@
+# Node dependencies (Thư mục thư viện của Node)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Build outputs (Các thư mục sinh ra khi build web)
+/cyber
+/dist
+/build
+/out
+/.next/
+
+# Capacitor specific (Các file cấu hình tạm của mobile)
+www/
+capacitor.config.json.timestamp-*
+
+# OS systems files (File rác của hệ điều hành)
+.DS_Store
+Thumbs.db
+
+
+# IDEs and editors (Cấu hình riêng của VS Code, Android Studio)
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Local env files (File chứa tài khoản, mật khẩu, API key - TUYỆT ĐỐI KHÔNG PUSH)
+.env
+.env.local
+.env.*.local
