@@ -1,147 +1,151 @@
 /* ==========================================
    PackCheck — App Logic (app.js)
+   Storage: @capacitor/preferences (native)
+            localStorage (browser fallback)
    ========================================== */
 
 'use strict';
+
+// ==========================================
+// STORAGE ADAPTER
+// Works without a bundler — uses the global
+// window.Capacitor object injected by Capacitor.
+// Falls back to localStorage in browser/devtools.
+// ==========================================
+const Storage = {
+  async set(key, value) {
+    try {
+      if (window.Capacitor?.isNativePlatform()) {
+        await window.Capacitor.Plugins.Preferences.set({ key, value: String(value) });
+      } else {
+        localStorage.setItem(key, value);
+      }
+    } catch (e) {
+      console.error('[PackCheck] Storage.set failed:', key, e);
+    }
+  },
+
+  async get(key) {
+    try {
+      if (window.Capacitor?.isNativePlatform()) {
+        const result = await window.Capacitor.Plugins.Preferences.get({ key });
+        return result.value ?? null;
+      }
+      return localStorage.getItem(key) ?? null;
+    } catch (e) {
+      console.error('[PackCheck] Storage.get failed:', key, e);
+      return null;
+    }
+  },
+
+  async remove(key) {
+    try {
+      if (window.Capacitor?.isNativePlatform()) {
+        await window.Capacitor.Plugins.Preferences.remove({ key });
+      } else {
+        localStorage.removeItem(key);
+      }
+    } catch (e) {
+      console.error('[PackCheck] Storage.remove failed:', key, e);
+    }
+  }
+};
+
+// ==========================================
+// SAFE JSON PARSE
+// Each key is parsed independently — a corrupt
+// key only resets that key, not everything else.
+// ==========================================
+function safeParse(str, fallback) {
+  if (!str) return fallback;
+  try {
+    const parsed = JSON.parse(str);
+    return parsed ?? fallback;
+  } catch (e) {
+    console.warn('[PackCheck] safeParse failed, using fallback:', e);
+    return fallback;
+  }
+}
 
 // ==========================================
 // i18n — STRING DEFINITIONS
 // ==========================================
 const STRINGS = {
   en: {
-    // Tabs
-    tab_today:    'Today',
-    tab_items:    'Items',
-    tab_history:  'History',
-    tab_settings: 'Settings',
-    // Groups
-    group_all:   'All',
-    group_hoc:   '🏫 School',
-    group_lam:   '💼 Work',
-    group_gym:   '🏋️ Gym',
-    group_ngoai: '🌿 Outdoors',
-    group_choi:  '🎉 Hangout',
-    // Progress
+    tab_today: 'Today', tab_items: 'Items', tab_history: 'History', tab_settings: 'Settings',
+    group_all: 'All', group_hoc: '🏫 School', group_lam: '💼 Work', group_gym: '🏋️ Gym',
+    group_ngoai: '🌿 Outdoors', group_choi: '🎉 Hangout',
     progress_packed: 'packed',
-    // Form
-    form_photo:   '📷 Photo',
-    form_name:    '📝 Item Name *',
-    form_note:    '💬 Note (optional)',
-    form_group:   '🏷️ Group Tag',
-    form_required:'⭐ Required Item',
-    form_name_ph: 'e.g. Water bottle',
-    form_note_ph: 'e.g. Fill before leaving',
-    add_header:   'Add New Item',
-    btn_add:      'Add Item 🎉',
-    btn_cancel:   'Cancel',
-    btn_delete:   'Delete',
-    btn_save_day: "📦 Save Today's Pack",
-    save_hint:    'Logs your checked items and flags missed required ones.',
-    upload_text:  'Tap to upload photo',
-    required_badge: '⭐ Must',
-    // Empty states
-    empty_today_title:   "Your bag is empty!",
-    empty_today_sub:     "Go to the <strong>Items</strong> tab to add things you carry.",
-    empty_items_title:   "No items yet!",
-    empty_items_sub:     "Click <strong>Add New Item</strong> above to get started.",
-    empty_group:         "No items in this group",
+    form_photo: '📷 Photo', form_name: '📝 Item Name *', form_note: '💬 Note (optional)',
+    form_group: '🏷️ Group Tag', form_required: '⭐ Required Item',
+    form_name_ph: 'e.g. Water bottle', form_note_ph: 'e.g. Fill before leaving',
+    add_header: 'Add New Item', btn_add: 'Add Item 🎉', btn_cancel: 'Cancel',
+    btn_delete: 'Delete', btn_save_day: "📦 Save Today's Pack",
+    save_hint: 'Logs your checked items and flags missed required ones.',
+    upload_text: 'Tap to upload photo', required_badge: '⭐ Must',
+    empty_today_title: "Your bag is empty!",
+    empty_today_sub: "Go to the <strong>Items</strong> tab to add things you carry.",
+    empty_items_title: "No items yet!",
+    empty_items_sub: "Click <strong>Add New Item</strong> above to get started.",
+    empty_group: "No items in this group",
     empty_history_title: "No history yet!",
-    empty_history_sub:   "Save your first daily pack from the <strong>Today</strong> tab.",
-    // History
-    history_title:   '📔 Pack History',
-    history_sub:     'Last 30 days of your daily packs',
-    history_packed:  'Packed items',
-    history_missed:  '⚠️ Missed required items',
-    history_nothing: 'Nothing checked this day.',
-    history_items:   'items',
+    empty_history_sub: "Save your first daily pack from the <strong>Today</strong> tab.",
+    history_title: '📔 Pack History', history_sub: 'Last 30 days of your daily packs',
+    history_packed: 'Packed items', history_missed: '⚠️ Missed required items',
+    history_nothing: 'Nothing checked this day.', history_items: 'items',
     history_missed_badge: (n) => `⚠️ ${n} missed`,
     history_pct_badge:    (p) => `✅ ${p}% packed`,
-    // Toast
-    toast_photo_large:  '📸 Photo too large (max 5MB)',
-    toast_name_required:'📝 Please enter an item name',
-    toast_added:        (name) => `🎉 "${name}" added!`,
-    toast_deleted:      '🗑️ Item deleted',
-    toast_saved:        (c, t) => `✅ Day saved! ${c}/${t} packed.`,
-    toast_missed_msg:   (n) => ` ⚠️ ${n} required item(s) missed!`,
-    toast_cleared:      '🗑️ All data cleared.',
-    // Modal
+    toast_photo_large: '📸 Photo too large (max 5MB)',
+    toast_name_required: '📝 Please enter an item name',
+    toast_added:      (name) => `🎉 "${name}" added!`,
+    toast_deleted:    '🗑️ Item deleted',
+    toast_saved:      (c, t) => `✅ Day saved! ${c}/${t} packed.`,
+    toast_missed_msg: (n) => ` ⚠️ ${n} required item(s) missed!`,
+    toast_cleared:    '🗑️ All data cleared.',
     modal_delete_title: 'Delete Item?',
     modal_delete_body:  (name) => `"${name}" will be removed from your list permanently.`,
-    // Settings
-    settings_title:       '⚙️ Settings',
-    settings_lang:        'Language',
-    settings_clear_label: 'Clear All Data',
-    settings_clear_btn:   'Reset',
-    settings_clear_hint:  'Erases all items, history, and settings permanently.',
+    settings_title: '⚙️ Settings', settings_lang: 'Language',
+    settings_clear_label: 'Clear All Data', settings_clear_btn: 'Reset',
+    settings_clear_hint: 'Erases all items, history, and settings permanently.',
     settings_clear_confirm: 'This will erase ALL items, history, and settings. This cannot be undone. Continue?',
     about_desc: 'Your cozy daily carry checklist planner.',
   },
-
   vi: {
-    // Tabs
-    tab_today:    'Hôm nay',
-    tab_items:    'Đồ vật',
-    tab_history:  'Lịch sử',
-    tab_settings: 'Cài đặt',
-    // Groups
-    group_all:   'Tất cả',
-    group_hoc:   '🏫 Đi học',
-    group_lam:   '💼 Đi làm',
-    group_gym:   '🏋️ Đi gym',
-    group_ngoai: '🌿 Ra ngoài',
-    group_choi:  '🎉 Đi chơi',
-    // Progress
+    tab_today: 'Hôm nay', tab_items: 'Đồ vật', tab_history: 'Lịch sử', tab_settings: 'Cài đặt',
+    group_all: 'Tất cả', group_hoc: '🏫 Đi học', group_lam: '💼 Đi làm', group_gym: '🏋️ Đi gym',
+    group_ngoai: '🌿 Ra ngoài', group_choi: '🎉 Đi chơi',
     progress_packed: 'đã xếp',
-    // Form
-    form_photo:   '📷 Ảnh',
-    form_name:    '📝 Tên đồ vật *',
-    form_note:    '💬 Ghi chú (tuỳ chọn)',
-    form_group:   '🏷️ Nhóm',
-    form_required:'⭐ Bắt buộc mang',
-    form_name_ph: 'vd: Bình nước',
-    form_note_ph: 'vd: Đổ đầy trước khi đi',
-    add_header:   'Thêm đồ vật mới',
-    btn_add:      'Thêm 🎉',
-    btn_cancel:   'Huỷ',
-    btn_delete:   'Xoá',
-    btn_save_day: '📦 Lưu hôm nay',
-    save_hint:    'Lưu danh sách đã check và đánh dấu đồ bắt buộc bị bỏ quên.',
-    upload_text:  'Bấm để tải ảnh lên',
-    required_badge: '⭐ Bắt buộc',
-    // Empty states
-    empty_today_title:   "Túi xách trống!",
-    empty_today_sub:     "Vào tab <strong>Đồ vật</strong> để thêm đồ mang theo.",
-    empty_items_title:   "Chưa có đồ vật nào!",
-    empty_items_sub:     "Bấm <strong>Thêm đồ vật mới</strong> phía trên để bắt đầu.",
-    empty_group:         "Không có đồ vật trong nhóm này",
+    form_photo: '📷 Ảnh', form_name: '📝 Tên đồ vật *', form_note: '💬 Ghi chú (tuỳ chọn)',
+    form_group: '🏷️ Nhóm', form_required: '⭐ Bắt buộc mang',
+    form_name_ph: 'vd: Bình nước', form_note_ph: 'vd: Đổ đầy trước khi đi',
+    add_header: 'Thêm đồ vật mới', btn_add: 'Thêm 🎉', btn_cancel: 'Huỷ',
+    btn_delete: 'Xoá', btn_save_day: '📦 Lưu hôm nay',
+    save_hint: 'Lưu danh sách đã check và đánh dấu đồ bắt buộc bị bỏ quên.',
+    upload_text: 'Bấm để tải ảnh lên', required_badge: '⭐ Bắt buộc',
+    empty_today_title: "Túi xách trống!",
+    empty_today_sub: "Vào tab <strong>Đồ vật</strong> để thêm đồ mang theo.",
+    empty_items_title: "Chưa có đồ vật nào!",
+    empty_items_sub: "Bấm <strong>Thêm đồ vật mới</strong> phía trên để bắt đầu.",
+    empty_group: "Không có đồ vật trong nhóm này",
     empty_history_title: "Chưa có lịch sử!",
-    empty_history_sub:   "Lưu ngày hôm nay từ tab <strong>Hôm nay</strong>.",
-    // History
-    history_title:   '📔 Lịch sử xếp đồ',
-    history_sub:     '30 ngày gần nhất',
-    history_packed:  'Đồ đã xếp',
-    history_missed:  '⚠️ Đồ bắt buộc bị bỏ quên',
-    history_nothing: 'Hôm đó không check gì cả.',
-    history_items:   'đồ vật',
+    empty_history_sub: "Lưu ngày hôm nay từ tab <strong>Hôm nay</strong>.",
+    history_title: '📔 Lịch sử xếp đồ', history_sub: '30 ngày gần nhất',
+    history_packed: 'Đồ đã xếp', history_missed: '⚠️ Đồ bắt buộc bị bỏ quên',
+    history_nothing: 'Hôm đó không check gì cả.', history_items: 'đồ vật',
     history_missed_badge: (n) => `⚠️ ${n} bị quên`,
     history_pct_badge:    (p) => `✅ ${p}% đã xếp`,
-    // Toast
-    toast_photo_large:  '📸 Ảnh quá lớn (tối đa 5MB)',
-    toast_name_required:'📝 Vui lòng nhập tên đồ vật',
-    toast_added:        (name) => `🎉 Đã thêm "${name}"!`,
-    toast_deleted:      '🗑️ Đã xoá đồ vật',
-    toast_saved:        (c, total) => `✅ Đã lưu! ${c}/${total} đã xếp.`,
-    toast_missed_msg:   (n) => ` ⚠️ ${n} đồ bắt buộc bị bỏ quên!`,
-    toast_cleared:      '🗑️ Đã xoá toàn bộ dữ liệu.',
-    // Modal
+    toast_photo_large: '📸 Ảnh quá lớn (tối đa 5MB)',
+    toast_name_required: '📝 Vui lòng nhập tên đồ vật',
+    toast_added:      (name) => `🎉 Đã thêm "${name}"!`,
+    toast_deleted:    '🗑️ Đã xoá đồ vật',
+    toast_saved:      (c, total) => `✅ Đã lưu! ${c}/${total} đã xếp.`,
+    toast_missed_msg: (n) => ` ⚠️ ${n} đồ bắt buộc bị bỏ quên!`,
+    toast_cleared:    '🗑️ Đã xoá toàn bộ dữ liệu.',
     modal_delete_title: 'Xoá đồ vật?',
     modal_delete_body:  (name) => `"${name}" sẽ bị xoá vĩnh viễn.`,
-    // Settings
-    settings_title:       '⚙️ Cài đặt',
-    settings_lang:        'Ngôn ngữ',
-    settings_clear_label: 'Xoá toàn bộ dữ liệu',
-    settings_clear_btn:   'Reset',
-    settings_clear_hint:  'Xoá hết đồ vật, lịch sử và cài đặt vĩnh viễn.',
+    settings_title: '⚙️ Cài đặt', settings_lang: 'Ngôn ngữ',
+    settings_clear_label: 'Xoá toàn bộ dữ liệu', settings_clear_btn: 'Reset',
+    settings_clear_hint: 'Xoá hết đồ vật, lịch sử và cài đặt vĩnh viễn.',
     settings_clear_confirm: 'Thao tác này sẽ xoá TOÀN BỘ đồ vật, lịch sử và cài đặt và không thể hoàn tác. Tiếp tục?',
     about_desc: 'Ứng dụng nhắc nhở đồ mang theo hằng ngày.',
   }
@@ -149,6 +153,9 @@ const STRINGS = {
 
 // ==========================================
 // GROUPS — single source of truth
+// Internal keys stay Vietnamese for localStorage
+// backward compatibility. Only display labels
+// are translated via i18n.
 // ==========================================
 const GROUPS = [
   { key: 'Đi học',   emoji: '🏫', i18nKey: 'group_hoc',   cls: 'tag-hoc'   },
@@ -161,7 +168,7 @@ const GROUPS = [
 function getGroup(key) { return GROUPS.find(g => g.key === key); }
 
 // ==========================================
-// STATE & STORAGE
+// STATE & STORAGE KEYS
 // ==========================================
 const STORAGE_KEYS = {
   ITEMS:   'packcheck_items',
@@ -183,32 +190,105 @@ let state = {
   lang: 'en'
 };
 
-function loadState() {
-  try {
-    state.items       = JSON.parse(localStorage.getItem(STORAGE_KEYS.ITEMS)   || '[]');
-    state.history     = JSON.parse(localStorage.getItem(STORAGE_KEYS.HISTORY) || '[]');
-    state.lang        = localStorage.getItem(STORAGE_KEYS.LANG) || 'en';
-    const todayKey    = getTodayKey();
-    const todayRaw    = JSON.parse(localStorage.getItem(STORAGE_KEYS.TODAY) || '{}');
-    state.todayChecked = (todayRaw.date === todayKey) ? (todayRaw.checked || {}) : {};
-  } catch (e) {
-    state.items = []; state.history = []; state.todayChecked = {};
+// ==========================================
+// ONE-TIME MIGRATION: localStorage → Preferences
+// Runs once on first launch after upgrade.
+// Copies existing localStorage data into the
+// new Preferences store, then cleans up.
+// ==========================================
+async function migrateFromLocalStorage() {
+  const migrationDone = await Storage.get('packcheck_migrated_v1');
+  if (migrationDone === 'true') return; // already done
+
+  const legacyKeys = Object.values(STORAGE_KEYS);
+  let hadData = false;
+
+  for (const key of legacyKeys) {
+    const val = localStorage.getItem(key);
+    if (val !== null) {
+      await Storage.set(key, val);
+      localStorage.removeItem(key);
+      hadData = true;
+    }
   }
+
+  await Storage.set('packcheck_migrated_v1', 'true');
+  if (hadData) console.log('[PackCheck] Migrated localStorage → Preferences');
 }
 
-function saveItems()        { localStorage.setItem(STORAGE_KEYS.ITEMS,   JSON.stringify(state.items)); }
-function saveHistory()      { localStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(state.history)); }
-function saveLang()         { localStorage.setItem(STORAGE_KEYS.LANG, state.lang); }
-function saveTodayChecked() {
-  localStorage.setItem(STORAGE_KEYS.TODAY, JSON.stringify({ date: getTodayKey(), checked: state.todayChecked }));
+// ==========================================
+// LOAD — async, each key parsed independently
+// ==========================================
+async function loadState() {
+  const [itemsStr, historyStr, langVal, todayStr] = await Promise.all([
+    Storage.get(STORAGE_KEYS.ITEMS),
+    Storage.get(STORAGE_KEYS.HISTORY),
+    Storage.get(STORAGE_KEYS.LANG),
+    Storage.get(STORAGE_KEYS.TODAY),
+  ]);
+
+  // Each key parsed independently — one corrupt key won't wipe the rest
+  state.items   = safeParse(itemsStr, []);
+  state.history = safeParse(historyStr, []);
+  state.lang    = langVal || 'en';
+
+  const todayRaw = safeParse(todayStr, {});
+  const todayKey = getTodayKey();
+  state.todayChecked = (todayRaw.date === todayKey) ? (todayRaw.checked || {}) : {};
 }
 
+// ==========================================
+// SAVE — all async, call sites are fire-and-forget
+// ==========================================
+async function saveItems() {
+  await Storage.set(STORAGE_KEYS.ITEMS, JSON.stringify(state.items));
+}
+
+async function saveHistory() {
+  await Storage.set(STORAGE_KEYS.HISTORY, JSON.stringify(state.history));
+}
+
+async function saveLang() {
+  await Storage.set(STORAGE_KEYS.LANG, state.lang);
+}
+
+async function saveTodayChecked() {
+  await Storage.set(STORAGE_KEYS.TODAY, JSON.stringify({
+    date: getTodayKey(),
+    checked: state.todayChecked
+  }));
+}
+
+// ==========================================
+// UTILS
+// ==========================================
 function getTodayKey() { return new Date().toISOString().slice(0, 10); }
 
 function formatDate(dateStr) {
   const d = new Date(dateStr + 'T00:00:00');
   const locale = state.lang === 'vi' ? 'vi-VN' : 'en-US';
   return d.toLocaleDateString(locale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+function genId() { return Math.random().toString(36).slice(2, 10) + Date.now().toString(36); }
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+            .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+
+function getItemEmoji(item) { const g = getGroup(item.group); return g ? g.emoji : '📦'; }
+function getGroupCls(key)   { const g = getGroup(key); return g ? g.cls : 'tag-default'; }
+function getGroupLabel(key) { const g = getGroup(key); return g ? t(g.i18nKey) : key; }
+
+let toastTimer = null;
+function showToast(msg, type = 'info', duration = 2800) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast show ${type}`;
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.className = 'toast'; }, duration);
 }
 
 // ==========================================
@@ -224,57 +304,14 @@ function tf(key, ...args) {
   return typeof val === 'function' ? val(...args) : val;
 }
 
-/** Update all data-i18n / data-i18n-html / data-i18n-placeholder elements */
 function applyI18n() {
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    el.textContent = t(el.dataset.i18n);
-  });
-  document.querySelectorAll('[data-i18n-html]').forEach(el => {
-    el.innerHTML = t(el.dataset.i18nHtml);
-  });
-  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-    el.placeholder = t(el.dataset.i18nPlaceholder);
-  });
-  // Update lang buttons active state
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { el.placeholder = t(el.dataset.i18nPlaceholder); });
   document.querySelectorAll('.lang-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.lang === state.lang);
   });
-  // Update html lang attribute
   document.documentElement.lang = state.lang === 'vi' ? 'vi' : 'en';
-}
-
-// ==========================================
-// UTILS
-// ==========================================
-function genId() { return Math.random().toString(36).slice(2, 10) + Date.now().toString(36); }
-
-function escapeHtml(str) {
-  if (!str) return '';
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
-}
-
-function getItemEmoji(item) {
-  const g = getGroup(item.group);
-  return g ? g.emoji : '📦';
-}
-
-function getGroupCls(key) {
-  const g = getGroup(key);
-  return g ? g.cls : 'tag-default';
-}
-
-function getGroupLabel(key) {
-  const g = getGroup(key);
-  return g ? t(g.i18nKey) : key;
-}
-
-let toastTimer = null;
-function showToast(msg, type = 'info', duration = 2800) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.className = `toast show ${type}`;
-  if (toastTimer) clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { el.className = 'toast'; }, duration);
 }
 
 // ==========================================
@@ -316,8 +353,8 @@ function getFilteredTodayItems() {
 }
 
 function renderToday() {
-  const grid      = document.getElementById('today-grid');
-  const emptyEl   = document.getElementById('today-empty');
+  const grid       = document.getElementById('today-grid');
+  const emptyEl    = document.getElementById('today-empty');
   const saveDayBar = document.getElementById('save-day-bar');
 
   updateProgressBar();
@@ -357,17 +394,13 @@ function buildTodayCard(item, checked) {
   div.setAttribute('aria-pressed', checked ? 'true' : 'false');
   div.setAttribute('aria-label', item.name);
 
-  const photoHTML = item.photo
+  const photoHTML    = item.photo
     ? `<img class="card-photo" src="${item.photo}" alt="${escapeHtml(item.name)}" loading="lazy" />`
     : `<div class="card-photo-placeholder">${getItemEmoji(item)}</div>`;
-
-  const noteHTML = item.note
+  const noteHTML     = item.note
     ? `<div class="card-note" title="${escapeHtml(item.note)}">${escapeHtml(item.note)}</div>` : '';
-
-  const groupLabel = item.group ? getGroupLabel(item.group) : '';
-  const groupHTML  = item.group
-    ? `<span class="card-group-tag ${getGroupCls(item.group)}">${escapeHtml(groupLabel)}</span>` : '';
-
+  const groupHTML    = item.group
+    ? `<span class="card-group-tag ${getGroupCls(item.group)}">${escapeHtml(getGroupLabel(item.group))}</span>` : '';
   const requiredHTML = item.required
     ? `<span class="required-badge">${t('required_badge')}</span>` : '';
 
@@ -397,7 +430,8 @@ function buildTodayCard(item, checked) {
 
 function toggleCheck(itemId, cardEl) {
   state.todayChecked[itemId] = !state.todayChecked[itemId];
-  saveTodayChecked();
+  // fire-and-forget — UI updates immediately, disk write in background
+  saveTodayChecked().catch(console.error);
   cardEl.classList.toggle('checked', !!state.todayChecked[itemId]);
   cardEl.setAttribute('aria-pressed', state.todayChecked[itemId] ? 'true' : 'false');
   updateProgressBar();
@@ -412,16 +446,16 @@ function updateProgressBar() {
   document.getElementById('progress-fill').style.width = `${pct}%`;
   document.getElementById('progress-bar-container').setAttribute('aria-valuenow', pct);
 
-  const emoji = ['🌱','🐣','🌸','🌟','⚡','🎉'];
+  const emojis = ['🌱','🐣','🌸','🌟','⚡','🎉'];
   const idx = pct === 0 ? 0 : pct < 30 ? 1 : pct < 60 ? 2 : pct < 90 ? 3 : pct < 100 ? 4 : 5;
-  document.getElementById('progress-emoji').textContent = emoji[idx];
+  document.getElementById('progress-emoji').textContent = emojis[idx];
 }
 
 function saveDay() {
-  const todayKey    = getTodayKey();
-  const checkedIds  = Object.keys(state.todayChecked).filter(id => state.todayChecked[id]);
+  const todayKey     = getTodayKey();
+  const checkedIds   = Object.keys(state.todayChecked).filter(id => state.todayChecked[id]);
   const checkedItems = checkedIds.map(id => state.items.find(i => i.id === id)).filter(Boolean);
-  const missed = state.items.filter(i => i.required && !state.todayChecked[i.id]);
+  const missed       = state.items.filter(i => i.required && !state.todayChecked[i.id]);
 
   const entry = {
     date: todayKey,
@@ -434,7 +468,9 @@ function saveDay() {
   state.history = state.history.filter(h => h.date !== todayKey);
   state.history.unshift(entry);
   if (state.history.length > 30) state.history = state.history.slice(0, 30);
-  saveHistory();
+
+  // fire-and-forget
+  saveHistory().catch(console.error);
 
   const missedMsg = missed.length > 0 ? tf('toast_missed_msg', missed.length) : '';
   showToast(tf('toast_saved', checkedItems.length, state.items.length) + missedMsg,
@@ -491,19 +527,15 @@ function buildItemManageCard(item) {
   div.className = 'item-manage-card';
   div.dataset.id = item.id;
 
-  const photoHTML = item.photo
+  const photoHTML    = item.photo
     ? `<img class="item-manage-photo" src="${item.photo}" alt="${escapeHtml(item.name)}" loading="lazy" />`
     : `<div class="item-manage-placeholder">${getItemEmoji(item)}</div>`;
-
-  const noteHTML = item.note
+  const noteHTML     = item.note
     ? `<div class="item-manage-note" title="${escapeHtml(item.note)}">${escapeHtml(item.note)}</div>`
     : `<div class="item-manage-note" style="opacity:0.3">—</div>`;
-
-  const groupLabel = item.group ? getGroupLabel(item.group) : '—';
-  const groupHTML  = item.group
-    ? `<span class="card-group-tag ${getGroupCls(item.group)}">${escapeHtml(groupLabel)}</span>`
+  const groupHTML    = item.group
+    ? `<span class="card-group-tag ${getGroupCls(item.group)}">${escapeHtml(getGroupLabel(item.group))}</span>`
     : `<span class="card-group-tag tag-default">—</span>`;
-
   const requiredHTML = item.required ? `<span class="required-badge">⭐</span>` : '';
 
   div.innerHTML = `
@@ -545,8 +577,12 @@ function confirmDelete() {
   if (!state.deleteTargetId) return;
   state.items = state.items.filter(i => i.id !== state.deleteTargetId);
   delete state.todayChecked[state.deleteTargetId];
-  saveItems(); saveTodayChecked(); closeModal();
-  renderItems(); updateProgressBar();
+  // fire-and-forget
+  saveItems().catch(console.error);
+  saveTodayChecked().catch(console.error);
+  closeModal();
+  renderItems();
+  updateProgressBar();
   showToast(t('toast_deleted'), 'info');
 }
 
@@ -566,14 +602,14 @@ function initItemsFilters() {
 // ADD ITEM FORM
 // ==========================================
 function initAddItemForm() {
-  const toggle      = document.getElementById('add-item-toggle');
-  const form        = document.getElementById('add-item-form');
-  const chevron     = document.getElementById('add-chevron');
-  const photoInput  = document.getElementById('item-photo');
-  const photoPreview = document.getElementById('photo-preview');
+  const toggle           = document.getElementById('add-item-toggle');
+  const form             = document.getElementById('add-item-form');
+  const chevron          = document.getElementById('add-chevron');
+  const photoInput       = document.getElementById('item-photo');
+  const photoPreview     = document.getElementById('photo-preview');
   const photoPlaceholder = document.getElementById('photo-placeholder');
   const groupSelector    = document.getElementById('group-selector');
-  const cancelBtn   = document.getElementById('btn-cancel-edit');
+  const cancelBtn        = document.getElementById('btn-cancel-edit');
 
   let currentPhoto = null;
 
@@ -620,16 +656,16 @@ function initAddItemForm() {
     if (!name) { showToast(t('toast_name_required'), 'error'); document.getElementById('item-name').focus(); return; }
 
     const newItem = {
-      id: genId(),
-      name,
-      photo: currentPhoto || null,
-      note:  document.getElementById('item-note').value.trim() || null,
-      group: state.selectedGroup || null,
+      id: genId(), name,
+      photo:    currentPhoto || null,
+      note:     document.getElementById('item-note').value.trim() || null,
+      group:    state.selectedGroup || null,
       required: document.getElementById('item-required').checked
     };
 
     state.items.push(newItem);
-    saveItems();
+    // fire-and-forget
+    saveItems().catch(console.error);
 
     state.formOpen = false;
     form.classList.add('hidden');
@@ -643,8 +679,8 @@ function initAddItemForm() {
 }
 
 function resetAddForm(photoPreview, photoPlaceholder, groupSelector) {
-  document.getElementById('item-name').value  = '';
-  document.getElementById('item-note').value  = '';
+  document.getElementById('item-name').value = '';
+  document.getElementById('item-note').value = '';
   document.getElementById('item-required').checked = false;
   document.getElementById('item-photo').value = '';
   photoPreview.classList.add('hidden'); photoPreview.src = '';
@@ -659,7 +695,6 @@ function renderHistory() {
   const list    = document.getElementById('history-list');
   const emptyEl = document.getElementById('history-empty');
 
-  // Update static i18n text in this panel
   document.getElementById('panel-history').querySelectorAll('[data-i18n]').forEach(el => {
     el.textContent = t(el.dataset.i18n);
   });
@@ -668,16 +703,14 @@ function renderHistory() {
   });
 
   if (state.history.length === 0) {
-    list.innerHTML = '';
-    emptyEl.classList.remove('hidden');
-    return;
+    list.innerHTML = ''; emptyEl.classList.remove('hidden'); return;
   }
   emptyEl.classList.add('hidden');
   list.innerHTML = '';
   state.history.forEach((entry, idx) => list.appendChild(buildHistoryEntry(entry, idx)));
 }
 
-function buildHistoryEntry(entry, idx) {
+function buildHistoryEntry(entry) {
   const div = document.createElement('div');
   div.className = 'history-entry';
 
@@ -733,34 +766,33 @@ function buildHistoryBody(entry) {
 // SETTINGS TAB
 // ==========================================
 function renderSettings() {
-  // i18n already applied globally, just update lang button states
   document.querySelectorAll('.lang-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.lang === state.lang);
   });
 }
 
 function initSettings() {
-  // Language toggle
   document.querySelectorAll('.lang-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       if (btn.dataset.lang === state.lang) return;
       state.lang = btn.dataset.lang;
-      saveLang();
+      saveLang().catch(console.error); // fire-and-forget
       applyI18n();
       renderHeaderDate();
-      // Re-render active tab content so dynamic strings update
       if (state.activeTab === 'today')   renderToday();
       if (state.activeTab === 'items')   renderItems();
       if (state.activeTab === 'history') renderHistory();
     });
   });
 
-  // Clear all data
-  document.getElementById('btn-clear-data').addEventListener('click', () => {
+  document.getElementById('btn-clear-data').addEventListener('click', async () => {
     if (!confirm(t('settings_clear_confirm'))) return;
-    localStorage.removeItem(STORAGE_KEYS.ITEMS);
-    localStorage.removeItem(STORAGE_KEYS.HISTORY);
-    localStorage.removeItem(STORAGE_KEYS.TODAY);
+    await Promise.all([
+      Storage.remove(STORAGE_KEYS.ITEMS),
+      Storage.remove(STORAGE_KEYS.HISTORY),
+      Storage.remove(STORAGE_KEYS.TODAY),
+      Storage.remove('packcheck_migrated_v1'),
+    ]);
     state.items = []; state.history = []; state.todayChecked = {};
     updateProgressBar();
     showToast(t('toast_cleared'), 'info');
@@ -774,40 +806,44 @@ function maybeSeedDemo() {
   if (state.items.length > 0) return;
   state.items = [
     { id: genId(), name: 'Water Bottle', photo: null, note: 'Fill before leaving!', group: 'Ra ngoài', required: true  },
-    { id: genId(), name: 'Keys',         photo: null, note: null,                    group: 'Ra ngoài', required: true  },
-    { id: genId(), name: 'Notebook',     photo: null, note: 'Blue spiral one',       group: 'Đi học',   required: false },
-    { id: genId(), name: 'Gym Gloves',   photo: null, note: null,                    group: 'Đi gym',   required: false },
-    { id: genId(), name: 'Earphones',    photo: null, note: 'Check battery!',        group: 'Đi chơi',  required: false },
-    { id: genId(), name: 'Work Badge',   photo: null, note: null,                    group: 'Đi làm',   required: true  },
+    { id: genId(), name: 'Keys',         photo: null, note: null,                   group: 'Ra ngoài', required: true  },
+    { id: genId(), name: 'Notebook',     photo: null, note: 'Blue spiral one',      group: 'Đi học',   required: false },
+    { id: genId(), name: 'Gym Gloves',   photo: null, note: null,                   group: 'Đi gym',   required: false },
+    { id: genId(), name: 'Earphones',    photo: null, note: 'Check battery!',       group: 'Đi chơi',  required: false },
+    { id: genId(), name: 'Work Badge',   photo: null, note: null,                   group: 'Đi làm',   required: true  },
   ];
-  saveItems();
+  // fire-and-forget seed save
+  saveItems().catch(console.error);
 }
 
 // ==========================================
-// INIT
+// INIT — async: must await loadState before
+// rendering anything to the screen
 // ==========================================
-function init() {
-  loadState();
+async function init() {
+  // 1. Migrate any old localStorage data → Preferences (runs only once)
+  await migrateFromLocalStorage();
+
+  // 2. Load all state from persistent storage
+  await loadState();
+
+  // 3. Seed demo data if first launch
   maybeSeedDemo();
 
-  // Apply i18n to all static elements
+  // 4. Apply i18n strings to static HTML elements
   applyI18n();
   renderHeaderDate();
 
-  // Tab navigation
+  // 5. Wire up all interactivity
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => switchTab(btn.dataset.tab));
   });
-
   initTodayFilters();
   initItemsFilters();
   initAddItemForm();
   initSettings();
 
-  // Save day
   document.getElementById('btn-save-day').addEventListener('click', saveDay);
-
-  // Modal
   document.getElementById('modal-confirm').addEventListener('click', confirmDelete);
   document.getElementById('modal-cancel').addEventListener('click', closeModal);
   document.getElementById('modal-overlay').addEventListener('click', e => {
@@ -815,7 +851,7 @@ function init() {
   });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
-  // Initial render
+  // 6. Render initial view
   renderToday();
 }
 
