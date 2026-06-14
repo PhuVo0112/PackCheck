@@ -698,6 +698,27 @@ body::after {
   transform: scale(1.2);
 }
 
+.btn-edit-item {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.05rem;
+  padding: 4px;
+  border-radius: 8px;
+  transition: all 0.2s;
+  opacity: 0.5;
+  line-height: 1;
+}
+
+.item-manage-card:hover .btn-edit-item {
+  opacity: 1;
+}
+
+.btn-edit-item:hover {
+  background: var(--lavender-light);
+  transform: scale(1.2);
+}
+
 /* ==========================================
    ADD ITEM FORM
    ========================================== */
@@ -1326,6 +1347,128 @@ body::after {
    ========================================== */
 .hidden {
   display: none !important;
+}
+.reminder-options-container.hidden {
+  display: none !important;
+}
+
+/* Custom Group Management Styles */
+.group-manage-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+  margin-bottom: 12px;
+}
+
+.group-manage-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--cream);
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--cream-dark);
+}
+
+.group-manage-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text-dark);
+}
+
+.btn-delete-group {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  padding: 4px;
+  border-radius: 8px;
+  color: var(--rose-dark);
+  transition: all 0.2s;
+}
+
+.btn-delete-group:hover {
+  background: var(--rose-light);
+  transform: scale(1.15);
+}
+
+.add-group-form-inline {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.add-group-emoji-input {
+  width: 44px;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+.add-group-name-input {
+  flex: 1;
+}
+
+.btn-add-group-inline {
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--sage);
+  color: white;
+  border: none;
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-add-group-inline:hover {
+  background: var(--sage-dark);
+}
+
+/* Backup and Restore Styles */
+.backup-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.btn-backup {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-head);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+  outline: none;
+}
+
+.btn-export-backup {
+  background: var(--sky-light);
+  color: #4A7A8A;
+  border: 2px solid #A8D8EA;
+}
+
+.btn-export-backup:hover {
+  background: #A8D8EA;
+  color: white;
+}
+
+.btn-import-backup {
+  background: var(--lavender-light);
+  color: var(--lavender-dark);
+  border: 2px solid var(--lavender);
+}
+
+.btn-import-backup:hover {
+  background: var(--lavender);
+  color: white;
 }
 
 /* Card wiggle animation on hover */

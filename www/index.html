@@ -103,13 +103,11 @@
         <!-- Group filter (only shown when choosing items or in today's grid if relevant) -->
         <div class="filter-row" id="today-filter-row">
           <button class="filter-chip active" data-group="all" id="today-filter-all" data-i18n="group_all">All</button>
-          <button class="filter-chip" data-group="Đi học" id="today-filter-hoc" data-i18n="group_hoc">🏫 School</button>
-          <button class="filter-chip" data-group="Đi làm" id="today-filter-lam" data-i18n="group_lam">💼 Work</button>
-          <button class="filter-chip" data-group="Đi gym" id="today-filter-gym" data-i18n="group_gym">🏋️ Gym</button>
-          <button class="filter-chip" data-group="Ra ngoài" id="today-filter-ngoai" data-i18n="group_ngoai">🌿
-            Outdoors</button>
-          <button class="filter-chip" data-group="Đi chơi" id="today-filter-choi" data-i18n="group_choi">🎉
-            Hangout</button>
+          <button class="filter-chip" data-group="Đi học" id="today-filter-hoc">🏫 <span data-i18n="group_hoc">School</span></button>
+          <button class="filter-chip" data-group="Đi làm" id="today-filter-lam">💼 <span data-i18n="group_lam">Work</span></button>
+          <button class="filter-chip" data-group="Đi gym" id="today-filter-gym">🏋️ <span data-i18n="group_gym">Gym</span></button>
+          <button class="filter-chip" data-group="Ra ngoài" id="today-filter-ngoai">🌿 <span data-i18n="group_ngoai">Outdoors</span></button>
+          <button class="filter-chip" data-group="Đi chơi" id="today-filter-choi">🎉 <span data-i18n="group_choi">Hangout</span></button>
         </div>
 
         <!-- Item cards grid -->
@@ -127,13 +125,13 @@
         <!-- Save day / Action buttons bar -->
         <div class="save-day-bar" id="save-day-bar">
           <button class="btn-save-day" id="btn-action-next" style="display:none">
-            <span data-i18n="btn_next_pack">👉 Continue to Packing</span>
+            👉 <span data-i18n="btn_next_pack">Continue to Packing</span>
           </button>
           <button class="btn-save-day" id="btn-action-start" style="display:none">
-            <span data-i18n="btn_start_carry">🚀 Start Carrying</span>
+            🚀 <span data-i18n="btn_start_carry">Start Carrying</span>
           </button>
           <button class="btn-save-day" id="btn-action-finish" style="display:none">
-            <span data-i18n="btn_finish_day">🏡 Finish Day & Return</span>
+            🏡 <span data-i18n="btn_finish_day">Finish Day & Return</span>
           </button>
           <p class="save-hint" id="save-hint" data-i18n="save_hint_packing">Select items to carry, then pack them.</p>
         </div>
@@ -151,7 +149,7 @@
           <form class="add-item-form" id="add-item-form" novalidate>
             <!-- Photo upload -->
             <div class="form-group">
-              <label class="form-label" for="item-photo" data-i18n="form_photo">📷 Photo</label>
+              <label class="form-label" for="item-photo">📷 <span data-i18n="form_photo">Photo</span></label>
               <div class="photo-upload-zone" id="photo-upload-zone">
                 <input type="file" id="item-photo" accept="image/*" class="hidden-file-input" />
                 <div class="photo-placeholder" id="photo-placeholder">
@@ -164,38 +162,38 @@
 
             <!-- Name -->
             <div class="form-group">
-              <label class="form-label" for="item-name" data-i18n="form_name">📝 Item Name *</label>
+              <label class="form-label" for="item-name">📝 <span data-i18n="form_name">Item Name *</span></label>
               <input type="text" id="item-name" class="form-input" data-i18n-placeholder="form_name_ph"
                 placeholder="e.g. Water bottle" maxlength="50" required />
             </div>
 
             <!-- Note -->
             <div class="form-group">
-              <label class="form-label" for="item-note" data-i18n="form_note">💬 Note (optional)</label>
+              <label class="form-label" for="item-note">💬 <span data-i18n="form_note">Note (optional)</span></label>
               <input type="text" id="item-note" class="form-input" data-i18n-placeholder="form_note_ph"
                 placeholder="e.g. Fill before leaving" maxlength="100" />
             </div>
 
             <!-- Group -->
             <div class="form-group">
-              <label class="form-label" data-i18n="form_group">🏷️ Group Tag</label>
+              <label class="form-label">🏷️ <span data-i18n="form_group">Group Tag</span></label>
               <div class="group-selector" id="group-selector">
-                <button type="button" class="group-option" data-group="Đi học" data-i18n="group_hoc" id="group-hoc">🏫
-                  School</button>
-                <button type="button" class="group-option" data-group="Đi làm" data-i18n="group_lam" id="group-lam">💼
-                  Work</button>
-                <button type="button" class="group-option" data-group="Đi gym" data-i18n="group_gym" id="group-gym">🏋️
-                  Gym</button>
-                <button type="button" class="group-option" data-group="Ra ngoài" data-i18n="group_ngoai"
-                  id="group-ngoai">🌿 Outdoors</button>
-                <button type="button" class="group-option" data-group="Đi chơi" data-i18n="group_choi"
-                  id="group-choi">🎉 Hangout</button>
+                <button type="button" class="group-option" data-group="Đi học" id="group-hoc">🏫
+                  <span data-i18n="group_hoc">School</span></button>
+                <button type="button" class="group-option" data-group="Đi làm" id="group-lam">💼
+                  <span data-i18n="group_lam">Work</span></button>
+                <button type="button" class="group-option" data-group="Đi gym" data-group="Đi gym" id="group-gym">🏋️
+                  <span data-i18n="group_gym">Gym</span></button>
+                <button type="button" class="group-option" data-group="Ra ngoài" id="group-ngoai">🌿
+                  <span data-i18n="group_ngoai">Outdoors</span></button>
+                <button type="button" class="group-option" data-group="Đi chơi" id="group-choi">🎉
+                  <span data-i18n="group_choi">Hangout</span></button>
               </div>
             </div>
 
             <!-- Required toggle -->
             <div class="form-group form-group-row">
-              <label class="form-label" for="item-required" data-i18n="form_required">⭐ Required Item</label>
+              <label class="form-label" for="item-required">⭐ <span data-i18n="form_required">Required Item</span></label>
               <label class="toggle-switch">
                 <input type="checkbox" id="item-required" />
                 <span class="toggle-thumb"></span>
@@ -204,7 +202,7 @@
 
             <!-- Submit -->
             <div class="form-actions">
-              <button type="submit" class="btn-primary" id="btn-add-item" data-i18n="btn_add">Add Item 🎉</button>
+              <button type="submit" class="btn-primary" id="btn-add-item"><span data-i18n="btn_add">Add Item</span> 🎉</button>
               <button type="button" class="btn-ghost" id="btn-cancel-edit" data-i18n="btn_cancel">Cancel</button>
             </div>
           </form>
@@ -213,13 +211,11 @@
         <!-- Items filter -->
         <div class="filter-row" id="items-filter-row">
           <button class="filter-chip active" data-group="all" id="items-filter-all" data-i18n="group_all">All</button>
-          <button class="filter-chip" data-group="Đi học" id="items-filter-hoc" data-i18n="group_hoc">🏫 School</button>
-          <button class="filter-chip" data-group="Đi làm" id="items-filter-lam" data-i18n="group_lam">💼 Work</button>
-          <button class="filter-chip" data-group="Đi gym" id="items-filter-gym" data-i18n="group_gym">🏋️ Gym</button>
-          <button class="filter-chip" data-group="Ra ngoài" id="items-filter-ngoai" data-i18n="group_ngoai">🌿
-            Outdoors</button>
-          <button class="filter-chip" data-group="Đi chơi" id="items-filter-choi" data-i18n="group_choi">🎉
-            Hangout</button>
+          <button class="filter-chip" data-group="Đi học" id="items-filter-hoc">🏫 <span data-i18n="group_hoc">School</span></button>
+          <button class="filter-chip" data-group="Đi làm" id="items-filter-lam">💼 <span data-i18n="group_lam">Work</span></button>
+          <button class="filter-chip" data-group="Đi gym" id="items-filter-gym">🏋️ <span data-i18n="group_gym">Gym</span></button>
+          <button class="filter-chip" data-group="Ra ngoài" id="items-filter-ngoai">🌿 <span data-i18n="group_ngoai">Outdoors</span></button>
+          <button class="filter-chip" data-group="Đi chơi" id="items-filter-choi">🎉 <span data-i18n="group_choi">Hangout</span></button>
         </div>
 
         <!-- Items grid -->
@@ -237,7 +233,7 @@
       <!-- ========== HISTORY TAB ========== -->
       <section class="tab-panel" id="panel-history">
         <div class="history-header">
-          <h2 class="section-title" data-i18n="history_title">📔 Pack History</h2>
+          <h2 class="section-title">📔 <span data-i18n="history_title">Pack History</span></h2>
           <p class="history-sub" data-i18n="history_sub">Last 30 days of your daily packs</p>
         </div>
         <div class="history-list" id="history-list"></div>
@@ -254,7 +250,7 @@
       <section class="tab-panel" id="panel-settings">
 
         <div class="settings-section">
-          <h2 class="settings-section-title" data-i18n="settings_title">⚙️ Settings</h2>
+          <h2 class="settings-section-title">⚙️ <span data-i18n="settings_title">Settings</span></h2>
 
           <!-- Language -->
           <div class="settings-card">
@@ -330,6 +326,43 @@
                 </select>
               </div>
             </div>
+          </div>
+
+
+          <!-- Manage Groups Settings -->
+          <div class="settings-card">
+            <div class="settings-row" style="margin-bottom: 12px;">
+              <div class="settings-row-label">
+                <span class="settings-icon">🏷️</span>
+                <span data-i18n="settings_groups_title" style="font-family: var(--font-head); font-size: 1.1rem; font-weight: 700;">Group Tags</span>
+              </div>
+            </div>
+            
+            <div class="group-manage-list" id="group-manage-list">
+              <!-- Dynamically populated -->
+            </div>
+            
+            <form class="add-group-form-inline" id="add-group-form">
+              <input type="text" id="add-group-emoji" class="settings-input add-group-emoji-input" placeholder="🎒" maxlength="2" required />
+              <input type="text" id="add-group-name" class="settings-input add-group-name-input" data-i18n-placeholder="group_name_placeholder" placeholder="Group name" maxlength="20" required />
+              <button type="submit" class="btn-add-group-inline" data-i18n="btn_add_group">Add</button>
+            </form>
+          </div>
+
+          <!-- Data Backup Settings -->
+          <div class="settings-card">
+            <div class="settings-row" style="margin-bottom: 8px;">
+              <div class="settings-row-label">
+                <span class="settings-icon">💾</span>
+                <span data-i18n="settings_backup_title" style="font-family: var(--font-head); font-size: 1.1rem; font-weight: 700;">Data Backup</span>
+              </div>
+            </div>
+            <p class="settings-danger-hint" data-i18n="settings_backup_hint" style="margin-bottom: 10px;">Export your daily items and history or restore from a backup file.</p>
+            <div class="backup-actions">
+              <button class="btn-backup btn-export-backup" id="btn-export-backup" data-i18n="btn_export_backup">Export Backup</button>
+              <button class="btn-backup btn-import-backup" id="btn-import-backup" data-i18n="btn_import_backup">Import Backup</button>
+            </div>
+            <input type="file" id="backup-file-input" accept=".json" class="hidden" />
           </div>
 
 

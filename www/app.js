@@ -174,14 +174,14 @@ function safeParse(str, fallback) {
 const STRINGS = {
   en: {
     tab_today: 'Today', tab_items: 'Items', tab_history: 'History', tab_settings: 'Settings',
-    group_all: 'All', group_hoc: '🏫 School', group_lam: '💼 Work', group_gym: '🏋️ Gym',
-    group_ngoai: '🌿 Outdoors', group_choi: '🎉 Hangout',
+    group_all: 'All', group_hoc: 'School', group_lam: 'Work', group_gym: 'Gym',
+    group_ngoai: 'Outdoors', group_choi: 'Hangout',
     progress_packed: 'packed',
-    form_photo: '📷 Photo', form_name: '📝 Item Name *', form_note: '💬 Note (optional)',
-    form_group: '🏷️ Group Tag', form_required: '⭐ Required Item',
+    form_photo: 'Photo', form_name: 'Item Name *', form_note: 'Note (optional)',
+    form_group: 'Group Tag', form_required: 'Required Item',
     form_name_ph: 'e.g. Water bottle', form_note_ph: 'e.g. Fill before leaving',
-    add_header: 'Add New Item', btn_add: 'Add Item 🎉', btn_cancel: 'Cancel',
-    btn_delete: 'Delete', btn_save_day: "📦 Save Today's Pack",
+    add_header: 'Add New Item', edit_header: 'Edit Item', btn_add: 'Add Item', btn_save_changes: 'Save Changes', btn_cancel: 'Cancel',
+    btn_delete: 'Delete', btn_save_day: "Save Today's Pack",
     save_hint: 'Logs your checked items and flags missed required ones.',
     upload_text: 'Tap to upload photo', required_badge: '⭐ Must',
     empty_today_title: "Your bag is empty!",
@@ -191,7 +191,7 @@ const STRINGS = {
     empty_group: "No items in this group",
     empty_history_title: "No history yet!",
     empty_history_sub: "Save your first daily pack from the <strong>Today</strong> tab.",
-    history_title: '📔 Pack History', history_sub: 'Last 30 days of your daily packs',
+    history_title: 'Pack History', history_sub: 'Last 30 days of your daily packs',
     history_packed: 'Packed items', history_missed: '⚠️ Missed required items',
     history_nothing: 'Nothing checked this day.', history_items: 'items',
     history_missed_badge: (n) => `⚠️ ${n} missed`,
@@ -199,28 +199,45 @@ const STRINGS = {
     toast_photo_large: '📸 Photo too large (max 5MB)',
     toast_name_required: '📝 Please enter an item name',
     toast_added: (name) => `🎉 "${name}" added!`,
+    toast_updated: (name) => `🎉 "${name}" updated!`,
     toast_deleted: '🗑️ Item deleted',
     toast_saved: (c, t) => `✅ Day saved! ${c}/${t} packed.`,
     toast_missed_msg: (n) => ` ⚠️ ${n} required item(s) missed!`,
     toast_cleared: '🗑️ All data cleared.',
     modal_delete_title: 'Delete Item?',
     modal_delete_body: (name) => `"${name}" will be removed from your list permanently.`,
-    settings_title: '⚙️ Settings', settings_lang: 'Language',
+    settings_title: 'Settings', settings_lang: 'Language',
     settings_clear_label: 'Clear All Data', settings_clear_btn: 'Reset',
     settings_clear_hint: 'Erases all items, history, and settings permanently.',
     settings_clear_confirm: 'This will erase ALL items, history, and settings. This cannot be undone. Continue?',
     about_desc: 'Your cozy daily carry checklist planner.',
+    settings_groups_title: 'Group Tags',
+    group_name_placeholder: 'Group name',
+    btn_add_group: 'Add',
+    settings_backup_title: 'Data Backup',
+    settings_backup_hint: 'Export your daily items and history or restore from a backup file.',
+    btn_export_backup: 'Export Backup',
+    btn_import_backup: 'Import Backup',
+    toast_backup_exported: '🎉 Backup file downloaded successfully!',
+    toast_backup_imported: '✅ Backup restored successfully!',
+    toast_backup_invalid: '❌ Invalid backup file format.',
+    confirm_import_backup: '⚠️ Importing a backup will overwrite ALL your current items, history, and settings. Do you want to continue?',
+    confirm_delete_group: (name) => `Are you sure you want to delete the group "${name}"? Items using this group will be uncategorized.`,
+    toast_group_added: (name) => `🎉 Group "${name}" added!`,
+    toast_group_deleted: '🗑️ Group deleted',
+    toast_group_exists: '⚠️ Group name already exists!',
+    toast_group_name_empty: '⚠️ Please enter a group name',
 
     // Pack & Return
-    phase_packing: 'Morning Packing 🌅',
-    phase_returning: 'Evening Return 🏡',
+    phase_packing: 'Morning Packing',
+    phase_returning: 'Evening Return',
     btn_switch_returning: 'Switch to Return',
     btn_switch_packing: 'Switch to Packing',
     step_select: '1. Select Items',
     step_pack: '2. Pack Bag',
-    btn_next_pack: '👉 Continue to Packing',
-    btn_start_carry: '🚀 Start Carrying',
-    btn_finish_day: '🏡 Finish Day & Return',
+    btn_next_pack: 'Continue to Packing',
+    btn_start_carry: 'Start Carrying',
+    btn_finish_day: 'Finish Day & Return',
     save_hint_select: 'Select items you want to carry today.',
     save_hint_packing: 'Pack the selected items into your bag.',
     save_hint_returning: 'Check off items as you put them back in your bag.',
@@ -236,14 +253,14 @@ const STRINGS = {
   },
   vi: {
     tab_today: 'Hôm nay', tab_items: 'Đồ vật', tab_history: 'Lịch sử', tab_settings: 'Cài đặt',
-    group_all: 'Tất cả', group_hoc: '🏫 Đi học', group_lam: '💼 Đi làm', group_gym: '🏋️ Đi gym',
-    group_ngoai: '🌿 Ra ngoài', group_choi: '🎉 Đi chơi',
+    group_all: 'Tất cả', group_hoc: 'Đi học', group_lam: 'Đi làm', group_gym: 'Đi gym',
+    group_ngoai: 'Ra ngoài', group_choi: 'Đi chơi',
     progress_packed: 'đã xếp',
-    form_photo: '📷 Ảnh', form_name: '📝 Tên đồ vật *', form_note: '💬 Ghi chú (tuỳ chọn)',
-    form_group: '🏷️ Nhóm', form_required: '⭐ Bắt buộc mang',
+    form_photo: 'Ảnh', form_name: 'Tên đồ vật *', form_note: 'Ghi chú (tuỳ chọn)',
+    form_group: 'Nhóm', form_required: 'Bắt buộc mang',
     form_name_ph: 'vd: Bình nước', form_note_ph: 'vd: Đổ đầy trước khi đi',
-    add_header: 'Thêm đồ vật mới', btn_add: 'Thêm 🎉', btn_cancel: 'Huỷ',
-    btn_delete: 'Xoá', btn_save_day: '📦 Lưu hôm nay',
+    add_header: 'Thêm đồ vật mới', edit_header: 'Chỉnh sửa đồ vật', btn_add: 'Thêm', btn_save_changes: 'Lưu thay đổi', btn_cancel: 'Huỷ',
+    btn_delete: 'Xoá', btn_save_day: 'Lưu hôm nay',
     save_hint: 'Lưu danh sách đã check và đánh dấu đồ bắt buộc bị bỏ quên.',
     upload_text: 'Bấm để tải ảnh lên', required_badge: '⭐ Bắt buộc',
     empty_today_title: "Túi xách trống!",
@@ -253,7 +270,7 @@ const STRINGS = {
     empty_group: "Không có đồ vật trong nhóm này",
     empty_history_title: "Chưa có lịch sử!",
     empty_history_sub: "Lưu ngày hôm nay từ tab <strong>Hôm nay</strong>.",
-    history_title: '📔 Lịch sử xếp đồ', history_sub: '30 ngày gần nhất',
+    history_title: 'Lịch sử xếp đồ', history_sub: '30 ngày gần nhất',
     history_packed: 'Đồ đã xếp', history_missed: '⚠️ Đồ bắt buộc bị bỏ quên',
     history_nothing: 'Hôm đó không check gì cả.', history_items: 'đồ vật',
     history_missed_badge: (n) => `⚠️ ${n} bị quên`,
@@ -261,28 +278,45 @@ const STRINGS = {
     toast_photo_large: '📸 Ảnh quá lớn (tối đa 5MB)',
     toast_name_required: '📝 Vui lòng nhập tên đồ vật',
     toast_added: (name) => `🎉 Đã thêm "${name}"!`,
+    toast_updated: (name) => `🎉 Đã cập nhật "${name}"!`,
     toast_deleted: '🗑️ Đã xoá đồ vật',
     toast_saved: (c, total) => `✅ Đã lưu! ${c}/${total} đã xếp.`,
     toast_missed_msg: (n) => ` ⚠️ ${n} đồ bắt buộc bị bỏ quên!`,
     toast_cleared: '🗑️ Đã xoá toàn bộ dữ liệu.',
     modal_delete_title: 'Xoá đồ vật?',
     modal_delete_body: (name) => `"${name}" sẽ bị xoá vĩnh viễn.`,
-    settings_title: '⚙️ Cài đặt', settings_lang: 'Ngôn ngữ',
+    settings_title: 'Cài đặt', settings_lang: 'Ngôn ngữ',
     settings_clear_label: 'Xoá toàn bộ dữ liệu', settings_clear_btn: 'Reset',
     settings_clear_hint: 'Xoá hết đồ vật, lịch sử và cài đặt vĩnh viễn.',
     settings_clear_confirm: 'Thao tác này sẽ xoá TOÀN BỘ đồ vật, lịch sử và cài đặt và không thể hoàn tác. Tiếp tục?',
     about_desc: 'Ứng dụng nhắc nhở đồ mang theo hằng ngày.',
+    settings_groups_title: 'Nhóm đồ vật',
+    group_name_placeholder: 'Tên nhóm',
+    btn_add_group: 'Thêm',
+    settings_backup_title: 'Sao lưu dữ liệu',
+    settings_backup_hint: 'Xuất dữ liệu đồ vật và lịch sử hằng ngày hoặc khôi phục từ file sao lưu.',
+    btn_export_backup: 'Xuất sao lưu',
+    btn_import_backup: 'Nhập sao lưu',
+    toast_backup_exported: '🎉 Đã tải file sao lưu thành công!',
+    toast_backup_imported: '✅ Đã khôi phục dữ liệu từ file sao lưu!',
+    toast_backup_invalid: '❌ File sao lưu không hợp lệ.',
+    confirm_import_backup: '⚠️ Việc nhập file sao lưu sẽ GHI ĐÈ toàn bộ đồ vật, lịch sử và cài đặt hiện tại của bạn. Bạn có chắc chắn muốn tiếp tục?',
+    confirm_delete_group: (name) => `Bạn có chắc chắn muốn xoá nhóm "${name}"? Các đồ dùng thuộc nhóm này sẽ không còn phân nhóm.`,
+    toast_group_added: (name) => `🎉 Đã thêm nhóm "${name}"!`,
+    toast_group_deleted: '🗑️ Đã xoá nhóm',
+    toast_group_exists: '⚠️ Tên nhóm đã tồn tại!',
+    toast_group_name_empty: '⚠️ Vui lòng nhập tên nhóm',
 
     // Pack & Return
-    phase_packing: 'Buổi sáng: Đi 🌅',
-    phase_returning: 'Buổi chiều: Về 🏡',
+    phase_packing: 'Buổi sáng: Đi',
+    phase_returning: 'Buổi chiều: Về',
     btn_switch_returning: 'Chuyển sang Pha Về',
     btn_switch_packing: 'Chuyển sang Pha Đi',
     step_select: '1. Chọn đồ mang',
     step_pack: '2. Xếp đồ vào balo',
-    btn_next_pack: '👉 Tiếp tục xếp đồ',
-    btn_start_carry: '🚀 Bắt đầu đi thôi!',
-    btn_finish_day: '🏡 Hoàn thành ngày & Về',
+    btn_next_pack: 'Tiếp tục xếp đồ',
+    btn_start_carry: 'Bắt đầu đi thôi!',
+    btn_finish_day: 'Hoàn thành ngày & Về',
     save_hint_select: 'Chọn các món đồ bạn muốn mang theo hôm nay.',
     save_hint_packing: 'Hãy xếp các món đồ đã chọn vào balo của bạn.',
     save_hint_returning: 'Tích chọn đồ khi bạn xếp chúng lại vào balo để đi về.',
@@ -304,15 +338,15 @@ const STRINGS = {
 // backward compatibility. Only display labels
 // are translated via i18n.
 // ==========================================
-const GROUPS = [
-  { key: 'Đi học', emoji: '🏫', i18nKey: 'group_hoc', cls: 'tag-hoc' },
-  { key: 'Đi làm', emoji: '💼', i18nKey: 'group_lam', cls: 'tag-lam' },
-  { key: 'Đi gym', emoji: '🏋️', i18nKey: 'group_gym', cls: 'tag-gym' },
-  { key: 'Ra ngoài', emoji: '🌿', i18nKey: 'group_ngoai', cls: 'tag-ngoai' },
-  { key: 'Đi chơi', emoji: '🎉', i18nKey: 'group_choi', cls: 'tag-choi' },
+const DEFAULT_GROUPS = [
+  { key: 'Đi học', emoji: '🏫', i18nKey: 'group_hoc', cls: 'tag-hoc', name: 'School' },
+  { key: 'Đi làm', emoji: '💼', i18nKey: 'group_lam', cls: 'tag-lam', name: 'Work' },
+  { key: 'Đi gym', emoji: '🏋️', i18nKey: 'group_gym', cls: 'tag-gym', name: 'Gym' },
+  { key: 'Ra ngoài', emoji: '🌿', i18nKey: 'group_ngoai', cls: 'tag-ngoai', name: 'Outdoors' },
+  { key: 'Đi chơi', emoji: '🎉', i18nKey: 'group_choi', cls: 'tag-choi', name: 'Hangout' },
 ];
 
-function getGroup(key) { return GROUPS.find(g => g.key === key); }
+function getGroup(key) { return state.groups.find(g => g.key === key); }
 
 // ==========================================
 // STATE & STORAGE KEYS
@@ -322,16 +356,19 @@ const STORAGE_KEYS = {
   HISTORY: 'packcheck_history',
   TODAY: 'packcheck_today_state',
   LANG: 'packcheck_lang',
-  SETTINGS: 'packcheck_settings'
+  SETTINGS: 'packcheck_settings',
+  GROUPS: 'packcheck_groups'
 };
 
 let state = {
   items: [],
   history: [],
+  groups: [],
   todayFilter: 'all',
   itemsFilter: 'all',
   activeTab: 'today',
   deleteTargetId: null,
+  editItemId: null,
   selectedGroup: null,
   formOpen: true,
   lang: 'en',
@@ -381,12 +418,13 @@ async function migrateFromLocalStorage() {
 // LOAD — async, each key parsed independently
 // ==========================================
 async function loadState() {
-  const [itemsStr, historyStr, langVal, todayStr, settingsStr] = await Promise.all([
+  const [itemsStr, historyStr, langVal, todayStr, settingsStr, groupsStr] = await Promise.all([
     Storage.get(STORAGE_KEYS.ITEMS),
     Storage.get(STORAGE_KEYS.HISTORY),
     Storage.get(STORAGE_KEYS.LANG),
     Storage.get(STORAGE_KEYS.TODAY),
-    Storage.get(STORAGE_KEYS.SETTINGS)
+    Storage.get(STORAGE_KEYS.SETTINGS),
+    Storage.get(STORAGE_KEYS.GROUPS)
   ]);
 
   // Each key parsed independently — one corrupt key won't wipe the rest
@@ -395,6 +433,10 @@ async function loadState() {
 
   const parsedHistory = safeParse(historyStr, []);
   state.history = Array.isArray(parsedHistory) ? parsedHistory : [];
+
+  const parsedGroups = safeParse(groupsStr, []);
+  state.groups = Array.isArray(parsedGroups) && parsedGroups.length > 0 ? parsedGroups : [...DEFAULT_GROUPS];
+
   state.lang = langVal || 'en';
 
   // Load Settings
@@ -468,6 +510,10 @@ async function saveSettings() {
   await Storage.set(STORAGE_KEYS.SETTINGS, JSON.stringify(state.settings));
 }
 
+async function saveGroups() {
+  await Storage.set(STORAGE_KEYS.GROUPS, JSON.stringify(state.groups));
+}
+
 // ==========================================
 // UTILS
 // ==========================================
@@ -506,7 +552,12 @@ function escapeHtml(str) {
 
 function getItemEmoji(item) { const g = getGroup(item.group); return g ? g.emoji : '📦'; }
 function getGroupCls(key) { const g = getGroup(key); return g ? g.cls : 'tag-default'; }
-function getGroupLabel(key) { const g = getGroup(key); return g ? t(g.i18nKey) : key; }
+function getGroupLabel(key) {
+  const g = getGroup(key);
+  if (!g) return key;
+  const labelText = g.i18nKey ? t(g.i18nKey) : g.name;
+  return `${g.emoji} ${labelText}`;
+}
 
 let toastTimer = null;
 function showToast(msg, type = 'info', duration = 2800) {
@@ -530,6 +581,20 @@ function tf(key, ...args) {
   return typeof val === 'function' ? val(...args) : val;
 }
 
+function updateFormTexts() {
+  const titleEl = document.querySelector('#add-item-card .add-title');
+  const submitBtn = document.getElementById('btn-add-item');
+  if (!submitBtn) return;
+  const submitSpan = submitBtn.querySelector('span') || submitBtn;
+  if (state.editItemId !== null) {
+    if (titleEl) titleEl.textContent = t('edit_header');
+    if (submitSpan) submitSpan.textContent = t('btn_save_changes');
+  } else {
+    if (titleEl) titleEl.textContent = t('add_header');
+    if (submitSpan) submitSpan.textContent = t('btn_add');
+  }
+}
+
 function applyI18n() {
   document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
   document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
@@ -538,6 +603,8 @@ function applyI18n() {
     btn.classList.toggle('active', btn.dataset.lang === state.lang);
   });
   document.documentElement.lang = state.lang === 'vi' ? 'vi' : 'en';
+  updateFormTexts();
+  renderGroupFilters();
 }
 
 // ==========================================
@@ -911,16 +978,70 @@ async function saveDay() {
   renderToday();
 }
 
-function initTodayFilters() {
-  const row = document.getElementById('today-filter-row');
-  row.querySelectorAll('.filter-chip').forEach(chip => {
+function renderGroupFilters() {
+  const todayRow = document.getElementById('today-filter-row');
+  const itemsRow = document.getElementById('items-filter-row');
+  const groupSel = document.getElementById('group-selector');
+
+  if (!todayRow || !itemsRow) return;
+
+  // 1. Render Today Filters
+  let todayHTML = `<button class="filter-chip${state.todayFilter === 'all' ? ' active' : ''}" data-group="all">${t('group_all')}</button>`;
+  state.groups.forEach(g => {
+    const label = g.i18nKey ? t(g.i18nKey) : g.name;
+    const active = state.todayFilter === g.key;
+    todayHTML += `<button class="filter-chip${active ? ' active' : ''}" data-group="${escapeHtml(g.key)}">${g.emoji} <span>${escapeHtml(label)}</span></button>`;
+  });
+  todayRow.innerHTML = todayHTML;
+
+  // Re-wire click events for today filters
+  todayRow.querySelectorAll('.filter-chip').forEach(chip => {
     chip.addEventListener('click', () => {
       state.todayFilter = chip.dataset.group;
-      row.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      todayRow.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
       chip.classList.add('active');
       renderToday();
     });
   });
+
+  // 2. Render Items Filters
+  let itemsHTML = `<button class="filter-chip${state.itemsFilter === 'all' ? ' active' : ''}" data-group="all">${t('group_all')}</button>`;
+  state.groups.forEach(g => {
+    const label = g.i18nKey ? t(g.i18nKey) : g.name;
+    const active = state.itemsFilter === g.key;
+    itemsHTML += `<button class="filter-chip${active ? ' active' : ''}" data-group="${escapeHtml(g.key)}">${g.emoji} <span>${escapeHtml(label)}</span></button>`;
+  });
+  itemsRow.innerHTML = itemsHTML;
+
+  // Re-wire click events for items filters
+  itemsRow.querySelectorAll('.filter-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      state.itemsFilter = chip.dataset.group;
+      itemsRow.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      renderItems();
+    });
+  });
+
+  // 3. Render Group Selector Options in Add Item Form
+  if (groupSel) {
+    let selHTML = '';
+    state.groups.forEach(g => {
+      const label = g.i18nKey ? t(g.i18nKey) : g.name;
+      const selected = state.selectedGroup === g.key;
+      selHTML += `<button type="button" class="group-option${selected ? ' selected' : ''}" data-group="${escapeHtml(g.key)}">${g.emoji} <span>${escapeHtml(label)}</span></button>`;
+    });
+    groupSel.innerHTML = selHTML;
+
+    // Re-wire click events for group selector
+    groupSel.querySelectorAll('.group-option').forEach(btn => {
+      btn.addEventListener('click', () => {
+        groupSel.querySelectorAll('.group-option').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        state.selectedGroup = btn.dataset.group;
+      });
+    });
+  }
 }
 
 // ==========================================
@@ -979,12 +1100,18 @@ function buildItemManageCard(item) {
       ${noteHTML}
       <div class="item-manage-footer">
         ${groupHTML}
-        <div style="display:flex;align-items:center;gap:4px">
+        <div style="display:flex;align-items:center;gap:6px">
           ${requiredHTML}
+          <button class="btn-edit-item" data-id="${item.id}" aria-label="Edit ${escapeHtml(item.name)}" title="Edit">✏️</button>
           <button class="btn-delete-item" data-id="${item.id}" aria-label="Delete ${escapeHtml(item.name)}" title="Delete">🗑️</button>
         </div>
       </div>
     </div>`;
+
+  div.querySelector('.btn-edit-item').addEventListener('click', e => {
+    e.stopPropagation();
+    window.startEditItem(item.id);
+  });
 
   div.querySelector('.btn-delete-item').addEventListener('click', e => {
     e.stopPropagation();
@@ -1025,16 +1152,245 @@ function confirmDelete() {
   showToast(t('toast_deleted'), 'info');
 }
 
-function initItemsFilters() {
-  const row = document.getElementById('items-filter-row');
-  row.querySelectorAll('.filter-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      state.itemsFilter = chip.dataset.group;
-      row.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-      chip.classList.add('active');
-      renderItems();
+function renderGroupManageList() {
+  const listEl = document.getElementById('group-manage-list');
+  if (!listEl) return;
+
+  listEl.innerHTML = '';
+  state.groups.forEach(g => {
+    const label = g.i18nKey ? t(g.i18nKey) : g.name;
+
+    const itemDiv = document.createElement('div');
+    itemDiv.className = 'group-manage-item';
+    itemDiv.innerHTML = `
+      <div class="group-manage-info">
+        <span class="group-manage-emoji">${escapeHtml(g.emoji)}</span>
+        <span class="group-manage-name">${escapeHtml(label)}</span>
+      </div>
+      <button class="btn-delete-group" data-key="${escapeHtml(g.key)}" title="Delete Group">🗑️</button>
+    `;
+
+    itemDiv.querySelector('.btn-delete-group').addEventListener('click', () => {
+      deleteGroup(g.key, label);
     });
+
+    listEl.appendChild(itemDiv);
   });
+}
+
+async function deleteGroup(key, label) {
+  if (!confirm(tf('confirm_delete_group', label))) return;
+
+  // 1. Remove group from state.groups
+  state.groups = state.groups.filter(g => g.key !== key);
+  await saveGroups();
+
+  // 2. Clear items using this group
+  state.items = state.items.map(item => {
+    if (item.group === key) {
+      return { ...item, group: null };
+    }
+    return item;
+  });
+  await saveItems();
+
+  // 3. Clear from today filter / items filter if active
+  if (state.todayFilter === key) state.todayFilter = 'all';
+  if (state.itemsFilter === key) state.itemsFilter = 'all';
+  if (state.selectedGroup === key) state.selectedGroup = null;
+
+  // 4. Update UI
+  renderGroupFilters();
+  renderGroupManageList();
+  renderItems();
+  renderToday();
+  showToast(t('toast_group_deleted'), 'info');
+}
+
+function initGroupManageForm() {
+  const form = document.getElementById('add-group-form');
+  if (!form) return;
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const emojiInput = document.getElementById('add-group-emoji');
+    const nameInput = document.getElementById('add-group-name');
+
+    const emoji = emojiInput.value.trim() || '🎒';
+    const name = nameInput.value.trim();
+
+    if (!name) {
+      showToast(t('toast_group_name_empty'), 'error');
+      return;
+    }
+
+    // Check duplicate
+    const exists = state.groups.some(g => {
+      const label = g.i18nKey ? t(g.i18nKey) : g.name;
+      return label.toLowerCase() === name.toLowerCase() || g.key.toLowerCase() === name.toLowerCase();
+    });
+
+    if (exists) {
+      showToast(t('toast_group_exists'), 'error');
+      return;
+    }
+
+    // Choose style color class rotating
+    const clsList = ['tag-hoc', 'tag-lam', 'tag-gym', 'tag-ngoai', 'tag-choi'];
+    const cls = clsList[state.groups.length % clsList.length];
+
+    const newGroup = {
+      key: name, // Using name as key for simplicity
+      emoji,
+      name,
+      cls
+    };
+
+    state.groups.push(newGroup);
+    await saveGroups();
+
+    emojiInput.value = '';
+    nameInput.value = '';
+
+    renderGroupFilters();
+    renderGroupManageList();
+    showToast(tf('toast_group_added', name), 'success');
+  });
+}
+
+function initBackupHandlers() {
+  const exportBtn = document.getElementById('btn-export-backup');
+  const importBtn = document.getElementById('btn-import-backup');
+  const fileInput = document.getElementById('backup-file-input');
+
+  if (exportBtn) {
+    exportBtn.addEventListener('click', () => {
+      try {
+        const backupData = {
+          version: '1.0',
+          app: 'PackCheck',
+          items: state.items,
+          history: state.history,
+          groups: state.groups,
+          settings: state.settings
+        };
+
+        const jsonString = JSON.stringify(backupData, null, 2);
+        const blob = new Blob([jsonString], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        const dateStr = getTodayKey();
+        a.download = `packcheck_backup_${dateStr}.json`;
+        document.body.appendChild(a);
+        a.click();
+
+        setTimeout(() => {
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, 0);
+
+        showToast(t('toast_backup_exported'), 'success');
+      } catch (err) {
+        console.error('[PackCheck] Export backup failed:', err);
+        showToast('Error exporting backup.', 'error');
+      }
+    });
+  }
+
+  if (importBtn && fileInput) {
+    importBtn.addEventListener('click', () => {
+      fileInput.click();
+    });
+
+    fileInput.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async ev => {
+        try {
+          const content = ev.target.result;
+          const parsed = JSON.parse(content);
+
+          // Validate backup format
+          if (!parsed || !Array.isArray(parsed.items) || !Array.isArray(parsed.history)) {
+            showToast(t('toast_backup_invalid'), 'error');
+            fileInput.value = '';
+            return;
+          }
+
+          if (!confirm(t('confirm_import_backup'))) {
+            fileInput.value = '';
+            return;
+          }
+
+          // Import items
+          state.items = parsed.items;
+          await saveItems();
+
+          // Import history
+          state.history = parsed.history;
+          await saveHistory();
+
+          // Import groups
+          if (Array.isArray(parsed.groups)) {
+            state.groups = parsed.groups;
+          } else {
+            state.groups = [...DEFAULT_GROUPS];
+          }
+          await saveGroups();
+
+          // Import settings
+          if (parsed.settings) {
+            state.settings = {
+              reminderEnabled: parsed.settings.reminderEnabled ?? false,
+              reminderMode: parsed.settings.reminderMode ?? 'time',
+              reminderTime: parsed.settings.reminderTime ?? '17:00',
+              reminderInterval: parsed.settings.reminderInterval ?? '3'
+            };
+            await saveSettings();
+          }
+
+          // Reset todayState
+          state.todayState = {
+            date: getTodayKey(),
+            phase: 'packing',
+            step: 'select',
+            carry: {},
+            packed: {},
+            returned: {}
+          };
+          state.items.forEach(item => {
+            if (item.required) {
+              state.todayState.carry[item.id] = true;
+            }
+          });
+          await saveTodayState();
+
+          state.todayFilter = 'all';
+          state.itemsFilter = 'all';
+          state.selectedGroup = null;
+
+          // Refresh UI
+          applyI18n();
+          if (state.activeTab === 'today') renderToday();
+          if (state.activeTab === 'items') renderItems();
+          if (state.activeTab === 'history') renderHistory();
+          if (state.activeTab === 'settings') renderSettings();
+
+          showToast(t('toast_backup_imported'), 'success');
+        } catch (err) {
+          console.error('[PackCheck] Import backup failed:', err);
+          showToast(t('toast_backup_invalid'), 'error');
+        }
+
+        fileInput.value = '';
+      };
+      reader.readAsText(file);
+    });
+  }
 }
 
 // ==========================================
@@ -1052,6 +1408,51 @@ function initAddItemForm() {
 
   let currentPhoto = null;
 
+  window.startEditItem = (id) => {
+    const item = state.items.find(i => i.id === id);
+    if (!item) return;
+
+    state.editItemId = id;
+
+    // 1. Populate standard fields
+    document.getElementById('item-name').value = item.name;
+    document.getElementById('item-note').value = item.note || '';
+    document.getElementById('item-required').checked = !!item.required;
+
+    // 2. Populate group tag selection
+    state.selectedGroup = item.group;
+    groupSelector.querySelectorAll('.group-option').forEach(btn => {
+      btn.classList.toggle('selected', btn.dataset.group === item.group);
+    });
+
+    // 3. Populate photo preview
+    currentPhoto = item.photo;
+    if (item.photo) {
+      photoPreview.src = item.photo;
+      photoPreview.classList.remove('hidden');
+      photoPlaceholder.classList.add('hidden');
+    } else {
+      photoPreview.classList.add('hidden');
+      photoPreview.src = '';
+      photoPlaceholder.classList.remove('hidden');
+    }
+
+    // 4. Update titles and buttons
+    updateFormTexts();
+
+    // 5. Expand form if hidden
+    state.formOpen = true;
+    form.classList.remove('hidden');
+    chevron.classList.add('open');
+
+    // 6. Scroll smoothly to form and focus name
+    const formCard = document.getElementById('add-item-card');
+    if (formCard) {
+      formCard.scrollIntoView({ behavior: 'smooth' });
+    }
+    setTimeout(() => document.getElementById('item-name').focus(), 150);
+  };
+
   toggle.addEventListener('click', () => {
     state.formOpen = !state.formOpen;
     form.classList.toggle('hidden', !state.formOpen);
@@ -1065,6 +1466,9 @@ function initAddItemForm() {
     chevron.classList.remove('open');
     resetAddForm(photoPreview, photoPlaceholder, groupSelector);
     currentPhoto = null;
+    state.selectedGroup = null;
+    state.editItemId = null;
+    updateFormTexts();
   });
 
   photoInput.addEventListener('change', e => {
@@ -1094,26 +1498,58 @@ function initAddItemForm() {
     const name = document.getElementById('item-name').value.trim();
     if (!name) { showToast(t('toast_name_required'), 'error'); document.getElementById('item-name').focus(); return; }
 
-    const newItem = {
-      id: genId(), name,
-      photo: currentPhoto || null,
-      note: document.getElementById('item-note').value.trim() || null,
-      group: state.selectedGroup || null,
-      required: document.getElementById('item-required').checked
-    };
+    if (state.editItemId !== null) {
+      // Edit mode
+      const item = state.items.find(i => i.id === state.editItemId);
+      if (item) {
+        item.name = name;
+        item.photo = currentPhoto || null;
+        item.note = document.getElementById('item-note').value.trim() || null;
+        item.group = state.selectedGroup || null;
+        item.required = document.getElementById('item-required').checked;
 
-    state.items.push(newItem);
-    // fire-and-forget
-    saveItems().catch(console.error);
+        saveItems().catch(console.error);
+
+        // Sync required state to today carry
+        if (item.required) {
+          state.todayState.carry[item.id] = true;
+          saveTodayState().catch(console.error);
+        }
+
+        showToast(tf('toast_updated', name), 'success');
+      }
+      state.editItemId = null;
+    } else {
+      // Add mode
+      const newItem = {
+        id: genId(), name,
+        photo: currentPhoto || null,
+        note: document.getElementById('item-note').value.trim() || null,
+        group: state.selectedGroup || null,
+        required: document.getElementById('item-required').checked
+      };
+
+      state.items.push(newItem);
+      saveItems().catch(console.error);
+
+      if (newItem.required) {
+        state.todayState.carry[newItem.id] = true;
+        saveTodayState().catch(console.error);
+      }
+
+      showToast(tf('toast_added', name), 'success');
+    }
 
     state.formOpen = false;
     form.classList.add('hidden');
     chevron.classList.remove('open');
     resetAddForm(photoPreview, photoPlaceholder, groupSelector);
     currentPhoto = null; state.selectedGroup = null;
+    updateFormTexts();
 
     renderItems();
-    showToast(tf('toast_added', name), 'success');
+    if (state.activeTab === 'today') renderToday();
+    updateProgressBar();
   });
 }
 
@@ -1241,6 +1677,7 @@ function renderSettings() {
   const intervalSelect = document.getElementById('reminder-interval');
   if (timeInput) timeInput.value = state.settings.reminderTime;
   if (intervalSelect) intervalSelect.value = state.settings.reminderInterval;
+  renderGroupManageList();
 }
 
 function initSettings() {
@@ -1317,11 +1754,13 @@ function initSettings() {
       Storage.remove(STORAGE_KEYS.HISTORY),
       Storage.remove(STORAGE_KEYS.TODAY),
       Storage.remove(STORAGE_KEYS.SETTINGS),
+      Storage.remove(STORAGE_KEYS.GROUPS),
       Storage.remove('packcheck_migrated_v1'),
     ]);
 
     state.items = [];
     state.history = [];
+    state.groups = [...DEFAULT_GROUPS];
     state.todayState = {
       date: getTodayKey(),
       phase: 'packing',
@@ -1340,9 +1779,13 @@ function initSettings() {
     await Notifications.cancelAll();
 
     renderSettings();
+    renderGroupFilters();
     updateProgressBar();
     showToast(t('toast_cleared'), 'info');
   });
+
+  initGroupManageForm();
+  initBackupHandlers();
 }
 
 // ==========================================
@@ -1373,6 +1816,17 @@ function maybeSeedDemo() {
 // rendering anything to the screen
 // ==========================================
 async function init() {
+  // Request persistent storage if supported (useful for iOS/Safari PWAs)
+  if (navigator.storage && navigator.storage.persist) {
+    navigator.storage.persisted().then(isPersisted => {
+      if (!isPersisted) {
+        navigator.storage.persist().then(granted => {
+          console.log(`[PackCheck] Persistent storage permission: ${granted}`);
+        }).catch(err => console.warn('[PackCheck] Requesting persistent storage failed:', err));
+      }
+    }).catch(err => console.warn('[PackCheck] Checking persistent storage failed:', err));
+  }
+
   // 1. Migrate any old localStorage data → Preferences (runs only once)
   await migrateFromLocalStorage();
 
@@ -1390,8 +1844,6 @@ async function init() {
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => switchTab(btn.dataset.tab));
   });
-  initTodayFilters();
-  initItemsFilters();
   initAddItemForm();
   initSettings();
 
