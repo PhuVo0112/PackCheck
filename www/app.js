@@ -18,6 +18,11 @@ const Storage = {
       localStorage.setItem(key, value);
     } catch (e) {
       console.error('[PackCheck] Storage.set failed:', key, e);
+      if (e.name === 'QuotaExceededError' || e.code === 22) {
+        showToast(t('toast_storage_full'), 'error', 4000);
+      } else {
+        showToast('Error saving data.', 'error');
+      }
     }
   },
 
@@ -40,31 +45,143 @@ const Storage = {
 };
 
 // ==========================================
-// NOTIFICATIONS ADAPTER
-// Integrates with @capacitor/local-notifications
-// with fallback for browser environment.
+// NOTIFICATIONS ADAPTER (Web Notification API)
+// Uses native browser Notifications and absolute targets
+// to schedule reminders dynamically (avoiding high CPU/RAM usage).
 // ==========================================
+let dynamicSchedulerTimer = null;
+
+function showWebNotification() {
+  if ('Notification' in window && Notification.permission === 'granted') {
+    new Notification(t('notif_return_title'), {
+      body: t('notif_return_body'),
+      icon: 'icon-192.png'
+    });
+  }
+}
+
+function runDynamicScheduler() {
+  if (dynamicSchedulerTimer) {
+    clearTimeout(dynamicSchedulerTimer);
+    dynamicSchedulerTimer = null;
+  }
+
+  const targetTimeStr = state.settings.reminderTargetTime;
+  if (!targetTimeStr || !state.settings.reminderEnabled) {
+    return;
+  }
+
+  const targetTime = new Date(targetTimeStr);
+  const now = new Date();
+  const diff = targetTime.getTime() - now.getTime();
+
+  if (diff <= 0) {
+    showWebNotification();
+    if (state.settings.reminderMode === 'interval') {
+      // Reschedule for next interval
+      const hoursVal = Number(state.settings.reminderInterval || 3);
+      const nextTarget = new Date(now.getTime() + hoursVal * 3600 * 1000);
+      state.settings.reminderTargetTime = nextTarget.toISOString();
+      saveSettings().catch(console.error);
+      runDynamicScheduler();
+    } else {
+      state.settings.reminderTargetTime = null;
+      saveSettings().catch(console.error);
+    }
+    return;
+  }
+
+  // Optimize timer interval depending on distance to target to save CPU and RAM resources
+  let nextCheckMs = 30 * 60 * 1000; // Check in 30 mins by default
+  if (diff <= 60 * 1000) {
+    // Less than 1 minute, check every 5 seconds for precision
+    nextCheckMs = 5 * 1000;
+  } else if (diff <= 30 * 60 * 1000) {
+    // Less than 30 minutes, check every 1 minute
+    nextCheckMs = 60 * 1000;
+  }
+
+  console.log(`[PackCheck] Reminder triggers in ${Math.round(diff / 1000)}s. Next check in ${Math.round(nextCheckMs / 1000)}s.`);
+  dynamicSchedulerTimer = setTimeout(runDynamicScheduler, nextCheckMs);
+}
+
 const Notifications = {
   async isAvailable() {
-    return false;
+    return 'Notification' in window;
   },
 
   async requestPermission() {
-    console.log('[PackCheck] Requesting notifications permission (web simulator)');
-    return false;
+    if (!(await this.isAvailable())) return false;
+    try {
+      const permission = await Notification.requestPermission();
+      return permission === 'granted';
+    } catch (e) {
+      console.error('[PackCheck] Web Notification permission request failed:', e);
+      return false;
+    }
   },
 
   async cancelAll() {
-    console.log('[PackCheck] Cancelled all pending notifications (web simulator)');
+    if (dynamicSchedulerTimer) {
+      clearTimeout(dynamicSchedulerTimer);
+      dynamicSchedulerTimer = null;
+    }
+    state.settings.reminderTargetTime = null;
+    await saveSettings();
+    console.log('[PackCheck] All web notifications cancelled and target cleared.');
   },
 
   async scheduleReturnReminders() {
     const settings = state.settings;
+    if (dynamicSchedulerTimer) {
+      clearTimeout(dynamicSchedulerTimer);
+      dynamicSchedulerTimer = null;
+    }
+
     if (!settings.reminderEnabled) {
-      await this.cancelAll();
+      state.settings.reminderTargetTime = null;
+      await saveSettings();
       return;
     }
-    console.log('[PackCheck] Simulating schedule with settings:', settings);
+
+    if (!(await this.isAvailable())) {
+      console.warn('[PackCheck] Web Notifications not supported in this browser.');
+      return;
+    }
+
+    // Ask for permission if default
+    if (Notification.permission === 'default') {
+      const granted = await this.requestPermission();
+      if (!granted) return;
+    } else if (Notification.permission !== 'granted') {
+      console.warn('[PackCheck] Notification permission is denied.');
+      return;
+    }
+
+    try {
+      const now = new Date();
+      let triggerDate = new Date();
+
+      if (settings.reminderMode === 'time') {
+        const [hours, minutes] = settings.reminderTime.split(':').map(Number);
+        triggerDate.setHours(hours, minutes, 0, 0);
+
+        if (triggerDate <= now) {
+          triggerDate.setDate(triggerDate.getDate() + 1);
+        }
+      } else if (settings.reminderMode === 'interval') {
+        const hoursVal = Number(settings.reminderInterval || 3);
+        triggerDate = new Date(now.getTime() + hoursVal * 3600 * 1000);
+      }
+
+      state.settings.reminderTargetTime = triggerDate.toISOString();
+      await saveSettings();
+
+      console.log(`[PackCheck] Reminder scheduled target set to: ${state.settings.reminderTargetTime}`);
+      runDynamicScheduler();
+    } catch (e) {
+      console.error('[PackCheck] Web Notification scheduling failed:', e);
+    }
   }
 };
 
@@ -113,6 +230,7 @@ const STRINGS = {
     history_missed_badge: (n) => `⚠️ ${n} missed`,
     history_pct_badge: (p) => `✅ ${p}% packed`,
     toast_photo_large: '📸 Photo too large (max 5MB)',
+    toast_storage_full: '💾 Storage quota exceeded! Try using a smaller photo.',
     toast_name_required: '📝 Please enter an item name',
     toast_added: (name) => `🎉 "${name}" added!`,
     toast_updated: (name) => `🎉 "${name}" updated!`,
@@ -200,6 +318,7 @@ const STRINGS = {
     history_missed_badge: (n) => `⚠️ ${n} bị quên`,
     history_pct_badge: (p) => `✅ ${p}% đã xếp`,
     toast_photo_large: '📸 Ảnh quá lớn (tối đa 5MB)',
+    toast_storage_full: '💾 Bộ nhớ đầy! Vui lòng thử dùng ảnh kích thước nhỏ hơn.',
     toast_name_required: '📝 Vui lòng nhập tên đồ vật',
     toast_added: (name) => `🎉 Đã thêm "${name}"!`,
     toast_updated: (name) => `🎉 Đã cập nhật "${name}"!`,
@@ -316,7 +435,8 @@ let state = {
     reminderEnabled: false,
     reminderMode: 'time', // 'time' | 'interval'
     reminderTime: '17:00',
-    reminderInterval: '3'
+    reminderInterval: '3',
+    reminderTargetTime: null
   }
 };
 
@@ -353,7 +473,8 @@ async function loadState() {
     reminderEnabled: loadedSettings.reminderEnabled ?? false,
     reminderMode: loadedSettings.reminderMode ?? 'time',
     reminderTime: loadedSettings.reminderTime ?? '17:00',
-    reminderInterval: loadedSettings.reminderInterval ?? '3'
+    reminderInterval: loadedSettings.reminderInterval ?? '3',
+    reminderTargetTime: loadedSettings.reminderTargetTime ?? null
   };
 
   // Load Today Phase State
@@ -1427,6 +1548,45 @@ function initBackupHandlers() {
 }
 
 // ==========================================
+// IMAGE COMPRESSOR
+// Resizes and compresses photo base64 strings to fit within
+// localStorage quota constraints.
+// ==========================================
+function compressImage(dataUrl, callback, maxWidth = 500, maxHeight = 500, quality = 0.7) {
+  const img = new Image();
+  img.src = dataUrl;
+  img.onload = () => {
+    const canvas = document.createElement('canvas');
+    let width = img.width;
+    let height = img.height;
+
+    if (width > height) {
+      if (width > maxWidth) {
+        height = Math.round((height * maxWidth) / width);
+        width = maxWidth;
+      }
+    } else {
+      if (height > maxHeight) {
+        width = Math.round((width * maxHeight) / height);
+        height = maxHeight;
+      }
+    }
+
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, width, height);
+
+    const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+    callback(compressedDataUrl);
+  };
+  img.onerror = (err) => {
+    console.error('[PackCheck] Image load failed for compression:', err);
+    callback(dataUrl);
+  };
+}
+
+// ==========================================
 // ADD ITEM FORM
 // ==========================================
 function initAddItemForm() {
@@ -1510,10 +1670,12 @@ function initAddItemForm() {
     if (file.size > 5 * 1024 * 1024) { showToast(t('toast_photo_large'), 'error'); return; }
     const reader = new FileReader();
     reader.onload = ev => {
-      currentPhoto = ev.target.result;
-      photoPreview.src = currentPhoto;
-      photoPreview.classList.remove('hidden');
-      photoPlaceholder.classList.add('hidden');
+      compressImage(ev.target.result, (compressed) => {
+        currentPhoto = compressed;
+        photoPreview.src = currentPhoto;
+        photoPreview.classList.remove('hidden');
+        photoPlaceholder.classList.add('hidden');
+      });
     };
     reader.readAsDataURL(file);
   });
@@ -1738,12 +1900,7 @@ function initSettings() {
       state.settings.reminderEnabled = e.target.checked;
       document.getElementById('reminder-options').classList.toggle('hidden', !e.target.checked);
       await saveSettings();
-
-      if (e.target.checked) {
-        await Notifications.requestPermission();
-      } else {
-        await Notifications.cancelAll();
-      }
+      await Notifications.scheduleReturnReminders();
     });
   }
 
@@ -1758,6 +1915,7 @@ function initSettings() {
     document.getElementById('row-reminder-time').classList.toggle('hidden', mode !== 'time');
     document.getElementById('row-reminder-interval').classList.toggle('hidden', mode !== 'interval');
     await saveSettings();
+    await Notifications.scheduleReturnReminders();
   };
 
   if (modeTimeBtn) modeTimeBtn.addEventListener('click', () => setMode('time'));
@@ -1769,6 +1927,7 @@ function initSettings() {
     timeInput.addEventListener('change', async e => {
       state.settings.reminderTime = e.target.value;
       await saveSettings();
+      await Notifications.scheduleReturnReminders();
     });
   }
 
@@ -1778,6 +1937,7 @@ function initSettings() {
     intervalSelect.addEventListener('change', async e => {
       state.settings.reminderInterval = e.target.value;
       await saveSettings();
+      await Notifications.scheduleReturnReminders();
     });
   }
 
@@ -1808,7 +1968,8 @@ function initSettings() {
       reminderEnabled: false,
       reminderMode: 'time',
       reminderTime: '17:00',
-      reminderInterval: '3'
+      reminderInterval: '3',
+      reminderTargetTime: null
     };
 
     await Notifications.cancelAll();
@@ -1869,7 +2030,10 @@ async function init() {
   // 3. Seed demo data if first launch
   maybeSeedDemo();
 
-  // 4. Apply i18n strings to static HTML elements
+  // 4. Start scheduler check loop if there's any active reminder target saved
+  runDynamicScheduler();
+
+  // 5. Apply i18n strings to static HTML elements
   applyI18n();
   renderHeaderDate();
 
