@@ -15,11 +15,7 @@
 const Storage = {
   async set(key, value) {
     try {
-      if (window.Capacitor?.isNativePlatform()) {
-        await window.Capacitor.Plugins.Preferences.set({ key, value: String(value) });
-      } else {
-        localStorage.setItem(key, value);
-      }
+      localStorage.setItem(key, value);
     } catch (e) {
       console.error('[PackCheck] Storage.set failed:', key, e);
     }
@@ -27,10 +23,6 @@ const Storage = {
 
   async get(key) {
     try {
-      if (window.Capacitor?.isNativePlatform()) {
-        const result = await window.Capacitor.Plugins.Preferences.get({ key });
-        return result.value ?? null;
-      }
       return localStorage.getItem(key) ?? null;
     } catch (e) {
       console.error('[PackCheck] Storage.get failed:', key, e);
@@ -40,11 +32,7 @@ const Storage = {
 
   async remove(key) {
     try {
-      if (window.Capacitor?.isNativePlatform()) {
-        await window.Capacitor.Plugins.Preferences.remove({ key });
-      } else {
-        localStorage.removeItem(key);
-      }
+      localStorage.removeItem(key);
     } catch (e) {
       console.error('[PackCheck] Storage.remove failed:', key, e);
     }
@@ -58,36 +46,16 @@ const Storage = {
 // ==========================================
 const Notifications = {
   async isAvailable() {
-    return window.Capacitor?.isPluginAvailable('LocalNotifications') ?? false;
+    return false;
   },
 
   async requestPermission() {
-    if (!(await this.isAvailable())) return false;
-    try {
-      const permission = await window.Capacitor.Plugins.LocalNotifications.requestPermissions();
-      return permission.display === 'granted';
-    } catch (e) {
-      console.error('[PackCheck] Notifications.requestPermission failed:', e);
-      return false;
-    }
+    console.log('[PackCheck] Requesting notifications permission (web simulator)');
+    return false;
   },
 
   async cancelAll() {
-    if (!(await this.isAvailable())) {
-      console.log('[PackCheck] LocalNotifications not available, simulating cancelAll');
-      return;
-    }
-    try {
-      const pending = await window.Capacitor.Plugins.LocalNotifications.getPending();
-      if (pending.notifications?.length > 0) {
-        await window.Capacitor.Plugins.LocalNotifications.cancel({
-          notifications: pending.notifications.map(n => ({ id: n.id }))
-        });
-        console.log('[PackCheck] Cancelled all pending notifications');
-      }
-    } catch (e) {
-      console.error('[PackCheck] Notifications.cancelAll failed:', e);
-    }
+    console.log('[PackCheck] Cancelled all pending notifications (web simulator)');
   },
 
   async scheduleReturnReminders() {
@@ -96,59 +64,7 @@ const Notifications = {
       await this.cancelAll();
       return;
     }
-
-    if (!(await this.isAvailable())) {
-      console.log('[PackCheck] LocalNotifications not available. Simulating schedule with settings:', settings);
-      return;
-    }
-
-    try {
-      // Clean up previous ones first
-      await this.cancelAll();
-
-      const notifications = [];
-      const title = t('notif_return_title');
-      const body = t('notif_return_body');
-
-      if (settings.reminderMode === 'time') {
-        const [hours, minutes] = settings.reminderTime.split(':').map(Number);
-        const triggerDate = new Date();
-        triggerDate.setHours(hours, minutes, 0, 0);
-
-        // If configured time has already passed today, schedule for tomorrow
-        if (triggerDate <= new Date()) {
-          triggerDate.setDate(triggerDate.getDate() + 1);
-        }
-
-        notifications.push({
-          title,
-          body,
-          id: 999,
-          schedule: { at: triggerDate }
-        });
-      } else if (settings.reminderMode === 'interval') {
-        const hoursVal = Number(settings.reminderInterval || 3);
-        // Schedule up to 4 sequential interval triggers to alert the user
-        for (let i = 1; i <= 4; i++) {
-          const triggerTime = new Date(Date.now() + i * hoursVal * 3600 * 1000);
-          notifications.push({
-            title,
-            body,
-            id: 1000 + i,
-            schedule: { at: triggerTime }
-          });
-        }
-      }
-
-      if (notifications.length > 0) {
-        // Request permission on the fly just in case
-        await this.requestPermission();
-        await window.Capacitor.Plugins.LocalNotifications.schedule({ notifications });
-        console.log('[PackCheck] Scheduled notifications successfully:', notifications);
-      }
-    } catch (e) {
-      console.error('[PackCheck] Notifications.scheduleReturnReminders failed:', e);
-    }
+    console.log('[PackCheck] Simulating schedule with settings:', settings);
   }
 };
 
@@ -249,7 +165,15 @@ const STRINGS = {
     reminder_time_label: 'Set Time',
     reminder_interval_label: 'Every X hours',
     notif_return_title: 'PackCheck 🎒',
-    notif_return_body: 'Time to go home! Double check your bag so you do not leave anything behind.'
+    notif_return_body: 'Time to go home! Double check your bag so you do not leave anything behind.',
+    streak_days: 'days',
+    quick_templates: 'Quick Templates',
+    quick_templates_hint: 'Select all items in a group instantly',
+    toast_template_applied: (name, count) => `Applied "${name}" template! ${count} items selected.`,
+    streak_title_active: (n) => `${n}-Day Streak! 🔥`,
+    streak_title_zero: 'Start Your Streak! 🌱',
+    streak_desc_active: 'Amazing! You checked 100% of your items. Keep the fire burning! ⚡',
+    streak_desc_zero: 'Pack and return 100% of your items today to start your streak! 🎒'
   },
   vi: {
     tab_today: 'Hôm nay', tab_items: 'Đồ vật', tab_history: 'Lịch sử', tab_settings: 'Cài đặt',
@@ -328,7 +252,15 @@ const STRINGS = {
     reminder_time_label: 'Chọn giờ',
     reminder_interval_label: 'Nhắc mỗi X giờ',
     notif_return_title: 'PackCheck 🎒',
-    notif_return_body: 'Đến giờ ra về rồi! Hãy kiểm tra túi xách để không bỏ quên món đồ nào nhé.'
+    notif_return_body: 'Đến giờ ra về rồi! Hãy kiểm tra túi xách để không bỏ quên món đồ nào nhé.',
+    streak_days: 'ngày',
+    quick_templates: 'Chọn nhanh mẫu',
+    quick_templates_hint: 'Chọn nhanh toàn bộ đồ dùng trong nhóm',
+    toast_template_applied: (name, count) => `Đã áp dụng mẫu "${name}"! Đã chọn ${count} món đồ.`,
+    streak_title_active: (n) => `Chuỗi ${n} ngày liên tục! 🔥`,
+    streak_title_zero: 'Bắt đầu chuỗi mới! 🌱',
+    streak_desc_active: 'Tuyệt vời! Bạn đã mang về đủ 100% đồ vật nhiều ngày liên tiếp. Tiếp tục duy trì nhé! ⚡',
+    streak_desc_zero: 'Kiểm đủ 100% hành lý ra về hôm nay để bắt đầu chuỗi tích luỹ! 🎒'
   }
 };
 
@@ -388,31 +320,7 @@ let state = {
   }
 };
 
-// ==========================================
-// ONE-TIME MIGRATION: localStorage → Preferences
-// Runs once on first launch after upgrade.
-// Copies existing localStorage data into the
-// new Preferences store, then cleans up.
-// ==========================================
-async function migrateFromLocalStorage() {
-  const migrationDone = await Storage.get('packcheck_migrated_v1');
-  if (migrationDone === 'true') return; // already done
-
-  const legacyKeys = [STORAGE_KEYS.ITEMS, STORAGE_KEYS.HISTORY, STORAGE_KEYS.TODAY, STORAGE_KEYS.LANG];
-  let hadData = false;
-
-  for (const key of legacyKeys) {
-    const val = localStorage.getItem(key);
-    if (val !== null) {
-      await Storage.set(key, val);
-      localStorage.removeItem(key);
-      hadData = true;
-    }
-  }
-
-  await Storage.set('packcheck_migrated_v1', 'true');
-  if (hadData) console.log('[PackCheck] Migrated localStorage → Preferences');
-}
+// Migration no longer required for pure web builds.
 
 // ==========================================
 // LOAD — async, each key parsed independently
@@ -698,6 +606,15 @@ function renderToday() {
     filterRow.style.display = 'flex';
   }
 
+  const templatesSection = document.getElementById('templates-section');
+  if (templatesSection) {
+    const showTemplates = state.todayState.phase === 'packing' && state.todayState.step === 'select' && state.items.length > 0;
+    templatesSection.style.display = showTemplates ? 'block' : 'none';
+    if (showTemplates) {
+      renderTemplates();
+    }
+  }
+
   if (state.items.length === 0) {
     grid.innerHTML = '';
     emptyEl.classList.remove('hidden');
@@ -969,6 +886,7 @@ async function saveDay() {
 
   await saveTodayState();
   await Notifications.cancelAll();
+  updateStreak();
 
   const missedCount = missedItems.length;
   const missedMsg = missedCount > 0 ? tf('toast_missed_msg', missedCount) : '';
@@ -1041,6 +959,120 @@ function renderGroupFilters() {
         state.selectedGroup = btn.dataset.group;
       });
     });
+  }
+}
+
+// ==========================================
+/* QUICK TEMPLATES & STREAK LOGIC */
+// ==========================================
+function renderTemplates() {
+  const rowEl = document.getElementById('today-templates-row');
+  if (!rowEl) return;
+
+  rowEl.innerHTML = '';
+  
+  state.groups.forEach(g => {
+    const label = g.i18nKey ? t(g.i18nKey) : g.name;
+    const btn = document.createElement('button');
+    btn.className = `template-btn ${g.cls || 'tag-default'}`;
+    btn.innerHTML = `${g.emoji} <span>${escapeHtml(label)}</span>`;
+    
+    btn.addEventListener('click', () => {
+      applyTemplate(g.key);
+    });
+    
+    rowEl.appendChild(btn);
+  });
+}
+
+function applyTemplate(groupKey) {
+  let selectedCount = 0;
+  state.items.forEach(item => {
+    if (item.group === groupKey || item.required) {
+      state.todayState.carry[item.id] = true;
+      if (item.group === groupKey) {
+        selectedCount++;
+      }
+    } else {
+      state.todayState.carry[item.id] = false;
+    }
+  });
+
+  saveTodayState().catch(console.error);
+  renderToday();
+  
+  const group = getGroup(groupKey);
+  const label = group ? (group.i18nKey ? t(group.i18nKey) : group.name) : groupKey;
+  showToast(tf('toast_template_applied', label, selectedCount), 'success');
+}
+
+function updateStreak() {
+  const perfectDates = new Set();
+  state.history.forEach(entry => {
+    const isPerfect = entry.totalCount > 0 && entry.checkedCount === entry.totalCount;
+    if (isPerfect) {
+      perfectDates.add(entry.date);
+    }
+  });
+
+  let streak = 0;
+  const today = new Date();
+  
+  const formatDateStr = (d) => {
+    const offset = d.getTimezoneOffset();
+    const localDate = new Date(d.getTime() - (offset * 60 * 1000));
+    return localDate.toISOString().slice(0, 10);
+  };
+
+  let checkDate = new Date(today);
+  let checkDateStr = formatDateStr(checkDate);
+
+  if (perfectDates.has(checkDateStr)) {
+    while (perfectDates.has(checkDateStr)) {
+      streak++;
+      checkDate.setDate(checkDate.getDate() - 1);
+      checkDateStr = formatDateStr(checkDate);
+    }
+  } else {
+    checkDate.setDate(checkDate.getDate() - 1);
+    checkDateStr = formatDateStr(checkDate);
+    if (perfectDates.has(checkDateStr)) {
+      while (perfectDates.has(checkDateStr)) {
+        streak++;
+        checkDate.setDate(checkDate.getDate() - 1);
+        checkDateStr = formatDateStr(checkDate);
+      }
+    }
+  }
+
+  const countEl = document.getElementById('streak-count');
+  const badgeEl = document.getElementById('streak-badge');
+  if (countEl && badgeEl) {
+    countEl.textContent = streak;
+    if (streak > 0) {
+      badgeEl.className = 'streak-badge active';
+    } else {
+      badgeEl.className = 'streak-badge zero';
+    }
+  }
+
+  const historyCard = document.getElementById('history-streak-card');
+  const historyTitle = document.getElementById('streak-motivation-title');
+  const historyDesc = document.getElementById('streak-motivation-desc');
+  const historyIcon = historyCard ? historyCard.querySelector('.streak-motivation-icon') : null;
+
+  if (historyCard && historyTitle && historyDesc) {
+    if (streak > 0) {
+      historyCard.className = 'streak-motivation-card';
+      historyTitle.textContent = tf('streak_title_active', streak);
+      historyDesc.textContent = t('streak_desc_active');
+      if (historyIcon) historyIcon.textContent = '🔥';
+    } else {
+      historyCard.className = 'streak-motivation-card zero';
+      historyTitle.textContent = t('streak_title_zero');
+      historyDesc.textContent = t('streak_desc_zero');
+      if (historyIcon) historyIcon.textContent = '🌱';
+    }
   }
 }
 
@@ -1368,6 +1400,7 @@ function initBackupHandlers() {
             }
           });
           await saveTodayState();
+          updateStreak();
 
           state.todayFilter = 'all';
           state.itemsFilter = 'all';
@@ -1569,6 +1602,8 @@ function resetAddForm(photoPreview, photoPlaceholder, groupSelector) {
 function renderHistory() {
   const list = document.getElementById('history-list');
   const emptyEl = document.getElementById('history-empty');
+
+  updateStreak();
 
   document.getElementById('panel-history').querySelectorAll('[data-i18n]').forEach(el => {
     el.textContent = t(el.dataset.i18n);
@@ -1777,6 +1812,7 @@ function initSettings() {
     };
 
     await Notifications.cancelAll();
+    updateStreak();
 
     renderSettings();
     renderGroupFilters();
@@ -1827,10 +1863,7 @@ async function init() {
     }).catch(err => console.warn('[PackCheck] Checking persistent storage failed:', err));
   }
 
-  // 1. Migrate any old localStorage data → Preferences (runs only once)
-  await migrateFromLocalStorage();
-
-  // 2. Load all state from persistent storage
+  // 1. Load all state from persistent storage
   await loadState();
 
   // 3. Seed demo data if first launch
@@ -1903,6 +1936,7 @@ async function init() {
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
   // 6. Render initial view
+  updateStreak();
   renderToday();
 }
 

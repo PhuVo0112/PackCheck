@@ -41,7 +41,12 @@
           <img src="icon-192.png" alt="PackCheck logo" class="logo-icon" />
           <h1 class="app-title">PackCheck</h1>
         </div>
-        <div class="header-date" id="header-date"></div>
+        <div class="header-right-wrap" style="display: flex; align-items: center; gap: 8px;">
+          <div class="streak-badge zero" id="streak-badge" title="Your 100% check streak! 🔥">
+            🔥 <span id="streak-count">0</span> <span data-i18n="streak_days">days</span>
+          </div>
+          <div class="header-date" id="header-date"></div>
+        </div>
       </div>
     </header>
 
@@ -98,6 +103,17 @@
           <button class="step-btn active" id="step-btn-select" data-step="select" data-i18n="step_select">1. Select
             Items</button>
           <button class="step-btn" id="step-btn-pack" data-step="pack" data-i18n="step_pack">2. Pack Bag</button>
+        </div>
+
+        <!-- Template Selection (Only visible in Step 1: Select Items) -->
+        <div class="templates-section" id="templates-section" style="display: none;">
+          <div class="templates-header">
+            <span class="templates-title" data-i18n="quick_templates">Quick Templates</span>
+            <span class="templates-hint" data-i18n="quick_templates_hint">Tap to select all items in a group</span>
+          </div>
+          <div class="templates-row" id="today-templates-row">
+            <!-- Populated dynamically -->
+          </div>
         </div>
 
         <!-- Group filter (only shown when choosing items or in today's grid if relevant) -->
@@ -235,6 +251,14 @@
         <div class="history-header">
           <h2 class="section-title">📔 <span data-i18n="history_title">Pack History</span></h2>
           <p class="history-sub" data-i18n="history_sub">Last 30 days of your daily packs</p>
+        </div>
+        <!-- Streak Motivation Card -->
+        <div class="streak-motivation-card zero" id="history-streak-card">
+          <div class="streak-motivation-icon">🌱</div>
+          <div class="streak-motivation-content">
+            <h3 class="streak-motivation-title" id="streak-motivation-title">Start Your Streak! 🌱</h3>
+            <p class="streak-motivation-desc" id="streak-motivation-desc">Pack and return 100% of your items today to start your streak!</p>
+          </div>
         </div>
         <div class="history-list" id="history-list"></div>
         <div class="empty-state hidden" id="history-empty">
