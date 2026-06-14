@@ -195,22 +195,22 @@ const STRINGS = {
     history_packed: 'Packed items', history_missed: '⚠️ Missed required items',
     history_nothing: 'Nothing checked this day.', history_items: 'items',
     history_missed_badge: (n) => `⚠️ ${n} missed`,
-    history_pct_badge:    (p) => `✅ ${p}% packed`,
+    history_pct_badge: (p) => `✅ ${p}% packed`,
     toast_photo_large: '📸 Photo too large (max 5MB)',
     toast_name_required: '📝 Please enter an item name',
-    toast_added:      (name) => `🎉 "${name}" added!`,
-    toast_deleted:    '🗑️ Item deleted',
-    toast_saved:      (c, t) => `✅ Day saved! ${c}/${t} packed.`,
+    toast_added: (name) => `🎉 "${name}" added!`,
+    toast_deleted: '🗑️ Item deleted',
+    toast_saved: (c, t) => `✅ Day saved! ${c}/${t} packed.`,
     toast_missed_msg: (n) => ` ⚠️ ${n} required item(s) missed!`,
-    toast_cleared:    '🗑️ All data cleared.',
+    toast_cleared: '🗑️ All data cleared.',
     modal_delete_title: 'Delete Item?',
-    modal_delete_body:  (name) => `"${name}" will be removed from your list permanently.`,
+    modal_delete_body: (name) => `"${name}" will be removed from your list permanently.`,
     settings_title: '⚙️ Settings', settings_lang: 'Language',
     settings_clear_label: 'Clear All Data', settings_clear_btn: 'Reset',
     settings_clear_hint: 'Erases all items, history, and settings permanently.',
     settings_clear_confirm: 'This will erase ALL items, history, and settings. This cannot be undone. Continue?',
     about_desc: 'Your cozy daily carry checklist planner.',
-    
+
     // Pack & Return
     phase_packing: 'Morning Packing 🌅',
     phase_returning: 'Evening Return 🏡',
@@ -224,7 +224,7 @@ const STRINGS = {
     save_hint_select: 'Select items you want to carry today.',
     save_hint_packing: 'Pack the selected items into your bag.',
     save_hint_returning: 'Check off items as you put them back in your bag.',
-    settings_reminder_title: '⏰ Return Reminder',
+    settings_reminder_title: 'Return Reminder',
     reminder_enable: 'Enable Reminder',
     reminder_mode: 'Reminder Mode',
     mode_time: 'Time',
@@ -257,22 +257,22 @@ const STRINGS = {
     history_packed: 'Đồ đã xếp', history_missed: '⚠️ Đồ bắt buộc bị bỏ quên',
     history_nothing: 'Hôm đó không check gì cả.', history_items: 'đồ vật',
     history_missed_badge: (n) => `⚠️ ${n} bị quên`,
-    history_pct_badge:    (p) => `✅ ${p}% đã xếp`,
+    history_pct_badge: (p) => `✅ ${p}% đã xếp`,
     toast_photo_large: '📸 Ảnh quá lớn (tối đa 5MB)',
     toast_name_required: '📝 Vui lòng nhập tên đồ vật',
-    toast_added:      (name) => `🎉 Đã thêm "${name}"!`,
-    toast_deleted:    '🗑️ Đã xoá đồ vật',
-    toast_saved:      (c, total) => `✅ Đã lưu! ${c}/${total} đã xếp.`,
+    toast_added: (name) => `🎉 Đã thêm "${name}"!`,
+    toast_deleted: '🗑️ Đã xoá đồ vật',
+    toast_saved: (c, total) => `✅ Đã lưu! ${c}/${total} đã xếp.`,
     toast_missed_msg: (n) => ` ⚠️ ${n} đồ bắt buộc bị bỏ quên!`,
-    toast_cleared:    '🗑️ Đã xoá toàn bộ dữ liệu.',
+    toast_cleared: '🗑️ Đã xoá toàn bộ dữ liệu.',
     modal_delete_title: 'Xoá đồ vật?',
-    modal_delete_body:  (name) => `"${name}" sẽ bị xoá vĩnh viễn.`,
+    modal_delete_body: (name) => `"${name}" sẽ bị xoá vĩnh viễn.`,
     settings_title: '⚙️ Cài đặt', settings_lang: 'Ngôn ngữ',
     settings_clear_label: 'Xoá toàn bộ dữ liệu', settings_clear_btn: 'Reset',
     settings_clear_hint: 'Xoá hết đồ vật, lịch sử và cài đặt vĩnh viễn.',
     settings_clear_confirm: 'Thao tác này sẽ xoá TOÀN BỘ đồ vật, lịch sử và cài đặt và không thể hoàn tác. Tiếp tục?',
     about_desc: 'Ứng dụng nhắc nhở đồ mang theo hằng ngày.',
-    
+
     // Pack & Return
     phase_packing: 'Buổi sáng: Đi 🌅',
     phase_returning: 'Buổi chiều: Về 🏡',
@@ -286,7 +286,7 @@ const STRINGS = {
     save_hint_select: 'Chọn các món đồ bạn muốn mang theo hôm nay.',
     save_hint_packing: 'Hãy xếp các món đồ đã chọn vào balo của bạn.',
     save_hint_returning: 'Tích chọn đồ khi bạn xếp chúng lại vào balo để đi về.',
-    settings_reminder_title: '⏰ Nhắc nhở lúc về',
+    settings_reminder_title: 'Nhắc nhở lúc về',
     reminder_enable: 'Bật nhắc nhở',
     reminder_mode: 'Chế độ nhắc',
     mode_time: 'Hẹn giờ',
@@ -305,11 +305,11 @@ const STRINGS = {
 // are translated via i18n.
 // ==========================================
 const GROUPS = [
-  { key: 'Đi học',   emoji: '🏫', i18nKey: 'group_hoc',   cls: 'tag-hoc'   },
-  { key: 'Đi làm',   emoji: '💼', i18nKey: 'group_lam',   cls: 'tag-lam'   },
-  { key: 'Đi gym',   emoji: '🏋️', i18nKey: 'group_gym',   cls: 'tag-gym'   },
+  { key: 'Đi học', emoji: '🏫', i18nKey: 'group_hoc', cls: 'tag-hoc' },
+  { key: 'Đi làm', emoji: '💼', i18nKey: 'group_lam', cls: 'tag-lam' },
+  { key: 'Đi gym', emoji: '🏋️', i18nKey: 'group_gym', cls: 'tag-gym' },
   { key: 'Ra ngoài', emoji: '🌿', i18nKey: 'group_ngoai', cls: 'tag-ngoai' },
-  { key: 'Đi chơi',  emoji: '🎉', i18nKey: 'group_choi',  cls: 'tag-choi'  },
+  { key: 'Đi chơi', emoji: '🎉', i18nKey: 'group_choi', cls: 'tag-choi' },
 ];
 
 function getGroup(key) { return GROUPS.find(g => g.key === key); }
@@ -318,10 +318,10 @@ function getGroup(key) { return GROUPS.find(g => g.key === key); }
 // STATE & STORAGE KEYS
 // ==========================================
 const STORAGE_KEYS = {
-  ITEMS:   'packcheck_items',
+  ITEMS: 'packcheck_items',
   HISTORY: 'packcheck_history',
-  TODAY:   'packcheck_today_state',
-  LANG:    'packcheck_lang',
+  TODAY: 'packcheck_today_state',
+  LANG: 'packcheck_lang',
   SETTINGS: 'packcheck_settings'
 };
 
@@ -390,9 +390,12 @@ async function loadState() {
   ]);
 
   // Each key parsed independently — one corrupt key won't wipe the rest
-  state.items   = safeParse(itemsStr, []);
-  state.history = safeParse(historyStr, []);
-  state.lang    = langVal || 'en';
+  const parsedItems = safeParse(itemsStr, []);
+  state.items = Array.isArray(parsedItems) ? parsedItems : [];
+
+  const parsedHistory = safeParse(historyStr, []);
+  state.history = Array.isArray(parsedHistory) ? parsedHistory : [];
+  state.lang = langVal || 'en';
 
   // Load Settings
   const loadedSettings = safeParse(settingsStr, {});
@@ -406,7 +409,7 @@ async function loadState() {
   // Load Today Phase State
   const todayKey = getTodayKey();
   const todayRaw = safeParse(todayStr, {});
-  
+
   if (todayRaw.date === todayKey) {
     state.todayState = {
       date: todayKey,
@@ -476,21 +479,33 @@ function getTodayKey() {
 }
 
 function formatDate(dateStr) {
-  const d = new Date(dateStr + 'T00:00:00');
-  const locale = state.lang === 'vi' ? 'vi-VN' : 'en-US';
-  return d.toLocaleDateString(locale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  if (!dateStr) return '';
+  const parts = dateStr.split('-');
+  if (parts.length === 3) {
+    const y = parseInt(parts[0], 10);
+    const m = parseInt(parts[1], 10) - 1; // 0-indexed month
+    const d = parseInt(parts[2], 10);
+    if (!isNaN(y) && !isNaN(m) && !isNaN(d)) {
+      const dateObj = new Date(y, m, d);
+      if (!isNaN(dateObj.getTime())) {
+        const locale = state.lang === 'vi' ? 'vi-VN' : 'en-US';
+        return dateObj.toLocaleDateString(locale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      }
+    }
+  }
+  return dateStr; // Fallback to raw string if parsing fails
 }
 
 function genId() { return Math.random().toString(36).slice(2, 10) + Date.now().toString(36); }
 
 function escapeHtml(str) {
   if (!str) return '';
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-            .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
 }
 
 function getItemEmoji(item) { const g = getGroup(item.group); return g ? g.emoji : '📦'; }
-function getGroupCls(key)   { const g = getGroup(key); return g ? g.cls : 'tag-default'; }
+function getGroupCls(key) { const g = getGroup(key); return g ? g.cls : 'tag-default'; }
 function getGroupLabel(key) { const g = getGroup(key); return g ? t(g.i18nKey) : key; }
 
 let toastTimer = null;
@@ -538,9 +553,9 @@ function switchTab(tab) {
   document.querySelectorAll('.tab-panel').forEach(panel => {
     panel.classList.toggle('active', panel.id === `panel-${tab}`);
   });
-  if (tab === 'today')    renderToday();
-  if (tab === 'items')    renderItems();
-  if (tab === 'history')  renderHistory();
+  if (tab === 'today') renderToday();
+  if (tab === 'items') renderItems();
+  if (tab === 'history') renderHistory();
   if (tab === 'settings') renderSettings();
 }
 
@@ -569,7 +584,7 @@ function getFilteredTodayItems() {
     // Returning phase
     list = state.items.filter(i => state.todayState.carry[i.id]);
   }
-  
+
   if (state.todayFilter !== 'all') {
     list = list.filter(i => i.group === state.todayFilter);
   }
@@ -621,7 +636,7 @@ function renderToday() {
     emptyEl.classList.remove('hidden');
     emptyTitle.textContent = t('empty_today_title');
     emptySub.innerHTML = t('empty_today_sub');
-    
+
     nextBtn.style.display = 'none';
     startBtn.style.display = 'none';
     finishBtn.style.display = 'none';
@@ -655,11 +670,11 @@ function renderToday() {
     } else {
       startBtn.style.display = 'block';
       hintEl.textContent = t('save_hint_packing');
-      
+
       // Enable "Start Carrying" button only when all carried items are packed
       const totalToPack = state.items.filter(i => state.todayState.carry[i.id]).length;
       const packedCount = state.items.filter(i => state.todayState.carry[i.id] && state.todayState.packed[i.id]).length;
-      
+
       startBtn.disabled = (totalToPack === 0 || packedCount < totalToPack);
       startBtn.style.opacity = startBtn.disabled ? '0.5' : '1';
     }
@@ -672,13 +687,13 @@ function renderToday() {
 function buildTodayCard(item) {
   const phase = state.todayState.phase;
   const step = state.todayState.step;
-  
+
   if (phase === 'packing' && step === 'select') {
     return buildTodaySelectCard(item);
   } else {
     // Packing step 2 or Returning phase: list is checkable cards
-    const isChecked = (phase === 'packing') 
-      ? !!state.todayState.packed[item.id] 
+    const isChecked = (phase === 'packing')
+      ? !!state.todayState.packed[item.id]
       : !!state.todayState.returned[item.id];
     return buildTodayChecklistCard(item, isChecked);
   }
@@ -687,7 +702,7 @@ function buildTodayCard(item) {
 function buildTodaySelectCard(item) {
   const div = document.createElement('div');
   const isSelected = !!state.todayState.carry[item.id];
-  
+
   div.className = `select-card${isSelected ? ' selected' : ''}${item.required ? ' required' : ''}`;
   div.dataset.id = item.id;
   div.setAttribute('role', 'checkbox');
@@ -697,15 +712,15 @@ function buildTodaySelectCard(item) {
   const photoHTML = item.photo
     ? `<img class="card-photo" src="${item.photo}" alt="${escapeHtml(item.name)}" loading="lazy" style="height: 100px; width: 100%; object-fit: cover; border-radius: var(--radius-sm);" />`
     : `<div class="card-photo-placeholder" style="height: 100px; display: flex; align-items: center; justify-content: center; background: var(--cream); font-size: 2rem; border-radius: var(--radius-sm);">${getItemEmoji(item)}</div>`;
-  
+
   const noteHTML = item.note
     ? `<div class="card-note" style="font-size: 0.75rem; color: var(--text-mid); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(item.note)}">${escapeHtml(item.note)}</div>` : '';
-  
+
   const groupHTML = item.group
     ? `<span class="card-group-tag ${getGroupCls(item.group)}" style="font-size: 0.65rem; padding: 2px 6px; border-radius: 10px;">${escapeHtml(getGroupLabel(item.group))}</span>` : '';
-  
-  const indicatorText = item.required 
-    ? t('required_badge') 
+
+  const indicatorText = item.required
+    ? t('required_badge')
     : isSelected ? (state.lang === 'vi' ? 'Mang đi' : 'Carry') : (state.lang === 'vi' ? 'Để nhà' : 'Leave');
 
   div.innerHTML = `
@@ -751,12 +766,12 @@ function buildTodayChecklistCard(item, checked) {
   div.setAttribute('aria-pressed', checked ? 'true' : 'false');
   div.setAttribute('aria-label', item.name);
 
-  const photoHTML    = item.photo
+  const photoHTML = item.photo
     ? `<img class="card-photo" src="${item.photo}" alt="${escapeHtml(item.name)}" loading="lazy" />`
     : `<div class="card-photo-placeholder">${getItemEmoji(item)}</div>`;
-  const noteHTML     = item.note
+  const noteHTML = item.note
     ? `<div class="card-note" title="${escapeHtml(item.note)}">${escapeHtml(item.note)}</div>` : '';
-  const groupHTML    = item.group
+  const groupHTML = item.group
     ? `<span class="card-group-tag ${getGroupCls(item.group)}">${escapeHtml(getGroupLabel(item.group))}</span>` : '';
   const requiredHTML = item.required
     ? `<span class="required-badge">${t('required_badge')}</span>` : '';
@@ -788,16 +803,16 @@ function buildTodayChecklistCard(item, checked) {
     } else {
       state.todayState.returned[item.id] = !state.todayState.returned[item.id];
     }
-    
+
     saveTodayState().catch(console.error);
-    
-    const isNowChecked = phase === 'packing' 
-      ? !!state.todayState.packed[item.id] 
+
+    const isNowChecked = phase === 'packing'
+      ? !!state.todayState.packed[item.id]
       : !!state.todayState.returned[item.id];
-      
+
     div.classList.toggle('checked', isNowChecked);
     div.setAttribute('aria-pressed', isNowChecked ? 'true' : 'false');
-    
+
     renderToday();
   };
 
@@ -811,11 +826,11 @@ function buildTodayChecklistCard(item, checked) {
 function updateProgressBar() {
   const phase = state.todayState.phase;
   const step = state.todayState.step;
-  
+
   let total = 0;
   let checked = 0;
   let label = '';
-  
+
   if (phase === 'packing') {
     if (step === 'select') {
       total = state.items.length;
@@ -831,28 +846,28 @@ function updateProgressBar() {
     checked = state.items.filter(i => state.todayState.carry[i.id] && state.todayState.returned[i.id]).length;
     label = state.lang === 'vi' ? 'đã mang về' : 'returned';
   }
-  
+
   const pct = total === 0 ? 0 : Math.round((checked / total) * 100);
-  
+
   document.getElementById('progress-text').textContent = `${checked} / ${total} ${label}`;
   document.getElementById('progress-fill').style.width = `${pct}%`;
   document.getElementById('progress-bar-container').setAttribute('aria-valuenow', pct);
-  
-  const emojis = ['🌱','🐣','🌸','🌟','⚡','🎉'];
+
+  const emojis = ['🌱', '🐣', '🌸', '🌟', '⚡', '🎉'];
   const idx = pct === 0 ? 0 : pct < 30 ? 1 : pct < 60 ? 2 : pct < 90 ? 3 : pct < 100 ? 4 : 5;
   document.getElementById('progress-emoji').textContent = emojis[idx];
 }
 
 async function saveDay() {
   const todayKey = getTodayKey();
-  
+
   // Carried items
   const carryItems = state.items.filter(i => state.todayState.carry[i.id]);
   // Successfully returned items
   const returnedItems = carryItems.filter(i => state.todayState.returned[i.id]);
   // Missed items
   const missedItems = carryItems.filter(i => !state.todayState.returned[i.id]);
-  
+
   const entry = {
     date: todayKey,
     checkedCount: returnedItems.length,
@@ -860,14 +875,14 @@ async function saveDay() {
     checked: returnedItems.map(i => ({ id: i.id, name: i.name, group: i.group })),
     missed: missedItems.map(i => ({ id: i.id, name: i.name, group: i.group }))
   };
-  
+
   // Save in history
   state.history = state.history.filter(h => h.date !== todayKey);
   state.history.unshift(entry);
   if (state.history.length > 30) state.history = state.history.slice(0, 30);
-  
+
   await saveHistory();
-  
+
   // Clean up today state
   state.todayState = {
     date: todayKey,
@@ -877,22 +892,22 @@ async function saveDay() {
     packed: {},
     returned: {}
   };
-  
+
   // Auto-select required items for next packing cycle
   state.items.forEach(item => {
     if (item.required) {
       state.todayState.carry[item.id] = true;
     }
   });
-  
+
   await saveTodayState();
   await Notifications.cancelAll();
-  
+
   const missedCount = missedItems.length;
   const missedMsg = missedCount > 0 ? tf('toast_missed_msg', missedCount) : '';
   showToast(tf('toast_saved', returnedItems.length, carryItems.length) + missedMsg,
     missedCount > 0 ? 'error' : 'success', 3500);
-    
+
   renderToday();
 }
 
@@ -918,9 +933,9 @@ function getFilteredItems() {
 }
 
 function renderItems() {
-  const grid    = document.getElementById('items-grid');
+  const grid = document.getElementById('items-grid');
   const emptyEl = document.getElementById('items-empty');
-  const items   = getFilteredItems();
+  const items = getFilteredItems();
 
   if (state.items.length === 0) {
     grid.innerHTML = '';
@@ -946,13 +961,13 @@ function buildItemManageCard(item) {
   div.className = 'item-manage-card';
   div.dataset.id = item.id;
 
-  const photoHTML    = item.photo
+  const photoHTML = item.photo
     ? `<img class="item-manage-photo" src="${item.photo}" alt="${escapeHtml(item.name)}" loading="lazy" />`
     : `<div class="item-manage-placeholder">${getItemEmoji(item)}</div>`;
-  const noteHTML     = item.note
+  const noteHTML = item.note
     ? `<div class="item-manage-note" title="${escapeHtml(item.note)}">${escapeHtml(item.note)}</div>`
     : `<div class="item-manage-note" style="opacity:0.3">—</div>`;
-  const groupHTML    = item.group
+  const groupHTML = item.group
     ? `<span class="card-group-tag ${getGroupCls(item.group)}">${escapeHtml(getGroupLabel(item.group))}</span>`
     : `<span class="card-group-tag tag-default">—</span>`;
   const requiredHTML = item.required ? `<span class="required-badge">⭐</span>` : '';
@@ -981,9 +996,9 @@ function buildItemManageCard(item) {
 function openDeleteModal(id, name) {
   state.deleteTargetId = id;
   document.getElementById('modal-title').textContent = t('modal_delete_title');
-  document.getElementById('modal-body').textContent  = tf('modal_delete_body', name);
+  document.getElementById('modal-body').textContent = tf('modal_delete_body', name);
   document.getElementById('modal-confirm').textContent = t('btn_delete');
-  document.getElementById('modal-cancel').textContent  = t('btn_cancel');
+  document.getElementById('modal-cancel').textContent = t('btn_cancel');
   document.getElementById('modal-overlay').classList.remove('hidden');
 }
 
@@ -994,16 +1009,16 @@ function closeModal() {
 function confirmDelete() {
   if (!state.deleteTargetId) return;
   state.items = state.items.filter(i => i.id !== state.deleteTargetId);
-  
+
   // Clean up from today's state
   delete state.todayState.carry[state.deleteTargetId];
   delete state.todayState.packed[state.deleteTargetId];
   delete state.todayState.returned[state.deleteTargetId];
-  
+
   // fire-and-forget
   saveItems().catch(console.error);
   saveTodayState().catch(console.error);
-  
+
   closeModal();
   renderItems();
   updateProgressBar();
@@ -1026,14 +1041,14 @@ function initItemsFilters() {
 // ADD ITEM FORM
 // ==========================================
 function initAddItemForm() {
-  const toggle           = document.getElementById('add-item-toggle');
-  const form             = document.getElementById('add-item-form');
-  const chevron          = document.getElementById('add-chevron');
-  const photoInput       = document.getElementById('item-photo');
-  const photoPreview     = document.getElementById('photo-preview');
+  const toggle = document.getElementById('add-item-toggle');
+  const form = document.getElementById('add-item-form');
+  const chevron = document.getElementById('add-chevron');
+  const photoInput = document.getElementById('item-photo');
+  const photoPreview = document.getElementById('photo-preview');
   const photoPlaceholder = document.getElementById('photo-placeholder');
-  const groupSelector    = document.getElementById('group-selector');
-  const cancelBtn        = document.getElementById('btn-cancel-edit');
+  const groupSelector = document.getElementById('group-selector');
+  const cancelBtn = document.getElementById('btn-cancel-edit');
 
   let currentPhoto = null;
 
@@ -1081,9 +1096,9 @@ function initAddItemForm() {
 
     const newItem = {
       id: genId(), name,
-      photo:    currentPhoto || null,
-      note:     document.getElementById('item-note').value.trim() || null,
-      group:    state.selectedGroup || null,
+      photo: currentPhoto || null,
+      note: document.getElementById('item-note').value.trim() || null,
+      group: state.selectedGroup || null,
       required: document.getElementById('item-required').checked
     };
 
@@ -1116,7 +1131,7 @@ function resetAddForm(photoPreview, photoPlaceholder, groupSelector) {
 // HISTORY TAB
 // ==========================================
 function renderHistory() {
-  const list    = document.getElementById('history-list');
+  const list = document.getElementById('history-list');
   const emptyEl = document.getElementById('history-empty');
 
   document.getElementById('panel-history').querySelectorAll('[data-i18n]').forEach(el => {
@@ -1138,9 +1153,9 @@ function buildHistoryEntry(entry) {
   const div = document.createElement('div');
   div.className = 'history-entry';
 
-  const pct         = entry.totalCount > 0 ? Math.round((entry.checkedCount / entry.totalCount) * 100) : 0;
+  const pct = entry.totalCount > 0 ? Math.round((entry.checkedCount / entry.totalCount) * 100) : 0;
   const missedCount = entry.missed ? entry.missed.length : 0;
-  const badgeHTML   = missedCount > 0
+  const badgeHTML = missedCount > 0
     ? `<span class="history-badge badge-warn">${tf('history_missed_badge', missedCount)}</span>`
     : `<span class="history-badge badge-success">${tf('history_pct_badge', pct)}</span>`;
 
@@ -1154,8 +1169,8 @@ function buildHistoryEntry(entry) {
     </div>
     <div class="history-entry-body">${buildHistoryBody(entry)}</div>`;
 
-  const header  = div.querySelector('.history-entry-header');
-  const body    = div.querySelector('.history-entry-body');
+  const header = div.querySelector('.history-entry-header');
+  const body = div.querySelector('.history-entry-body');
   const chevron = div.querySelector('.history-chevron');
   header.addEventListener('click', () => {
     body.classList.toggle('open');
@@ -1200,7 +1215,7 @@ function renderSettings() {
   if (enabledCheckbox) {
     enabledCheckbox.checked = state.settings.reminderEnabled;
   }
-  
+
   const optionsContainer = document.getElementById('reminder-options');
   if (optionsContainer) {
     optionsContainer.classList.toggle('hidden', !state.settings.reminderEnabled);
@@ -1237,8 +1252,8 @@ function initSettings() {
       saveLang().catch(console.error); // fire-and-forget
       applyI18n();
       renderHeaderDate();
-      if (state.activeTab === 'today')   renderToday();
-      if (state.activeTab === 'items')   renderItems();
+      if (state.activeTab === 'today') renderToday();
+      if (state.activeTab === 'items') renderItems();
       if (state.activeTab === 'history') renderHistory();
       if (state.activeTab === 'settings') renderSettings();
     });
@@ -1251,7 +1266,7 @@ function initSettings() {
       state.settings.reminderEnabled = e.target.checked;
       document.getElementById('reminder-options').classList.toggle('hidden', !e.target.checked);
       await saveSettings();
-      
+
       if (e.target.checked) {
         await Notifications.requestPermission();
       } else {
@@ -1263,7 +1278,7 @@ function initSettings() {
   // Reminder Mode buttons action
   const modeTimeBtn = document.getElementById('mode-time');
   const modeIntervalBtn = document.getElementById('mode-interval');
-  
+
   const setMode = async (mode) => {
     state.settings.reminderMode = mode;
     modeTimeBtn.classList.toggle('active', mode === 'time');
@@ -1272,7 +1287,7 @@ function initSettings() {
     document.getElementById('row-reminder-interval').classList.toggle('hidden', mode !== 'interval');
     await saveSettings();
   };
-  
+
   if (modeTimeBtn) modeTimeBtn.addEventListener('click', () => setMode('time'));
   if (modeIntervalBtn) modeIntervalBtn.addEventListener('click', () => setMode('interval'));
 
@@ -1304,9 +1319,9 @@ function initSettings() {
       Storage.remove(STORAGE_KEYS.SETTINGS),
       Storage.remove('packcheck_migrated_v1'),
     ]);
-    
-    state.items = []; 
-    state.history = []; 
+
+    state.items = [];
+    state.history = [];
     state.todayState = {
       date: getTodayKey(),
       phase: 'packing',
@@ -1321,9 +1336,9 @@ function initSettings() {
       reminderTime: '17:00',
       reminderInterval: '3'
     };
-    
+
     await Notifications.cancelAll();
-    
+
     renderSettings();
     updateProgressBar();
     showToast(t('toast_cleared'), 'info');
@@ -1336,14 +1351,21 @@ function initSettings() {
 function maybeSeedDemo() {
   if (state.items.length > 0) return;
   state.items = [
-    { id: genId(), name: 'Water Bottle', photo: null, note: 'Fill before leaving!', group: 'Ra ngoài', required: true  },
-    { id: genId(), name: 'Keys',         photo: null, note: null,                   group: 'Ra ngoài', required: true  },
-    { id: genId(), name: 'Notebook',     photo: null, note: 'Blue spiral one',      group: 'Đi học',   required: false },
-    { id: genId(), name: 'Gym Gloves',   photo: null, note: null,                   group: 'Đi gym',   required: false },
-    { id: genId(), name: 'Earphones',    photo: null, note: 'Check battery!',       group: 'Đi chơi',  required: false },
-    { id: genId(), name: 'Work Badge',   photo: null, note: null,                   group: 'Đi làm',   required: true  },
+    { id: genId(), name: 'Water Bottle', photo: null, note: 'Fill before leaving!', group: 'Ra ngoài', required: true },
+    { id: genId(), name: 'Keys', photo: null, note: null, group: 'Ra ngoài', required: true },
+    { id: genId(), name: 'Notebook', photo: null, note: 'Blue spiral one', group: 'Đi học', required: false },
+    { id: genId(), name: 'Gym Gloves', photo: null, note: null, group: 'Đi gym', required: false },
+    { id: genId(), name: 'Earphones', photo: null, note: 'Check battery!', group: 'Đi chơi', required: false },
+    { id: genId(), name: 'Work Badge', photo: null, note: null, group: 'Đi làm', required: true },
   ];
+  // Auto-select required items in current todayState since they are newly created
+  state.items.forEach(item => {
+    if (item.required) {
+      state.todayState.carry[item.id] = true;
+    }
+  });
   saveItems().catch(console.error);
+  saveTodayState().catch(console.error);
 }
 
 // ==========================================
@@ -1379,7 +1401,7 @@ async function init() {
     const confirmMsg = state.lang === 'vi'
       ? `Bạn có chắc muốn chuyển sang ${nextPhase === 'returning' ? 'Pha Về (Trả đồ)' : 'Pha Đi (Xếp đồ)'}?`
       : `Are you sure you want to switch to ${nextPhase === 'returning' ? 'Returning Phase' : 'Packing Phase'}?`;
-    
+
     if (confirm(confirmMsg)) {
       state.todayState.phase = nextPhase;
       if (nextPhase === 'packing') state.todayState.step = 'select';
@@ -1410,12 +1432,12 @@ async function init() {
     state.todayState.phase = 'returning';
     await saveTodayState();
     await Notifications.scheduleReturnReminders();
-    
+
     const carryCount = state.items.filter(i => state.todayState.carry[i.id]).length;
-    showToast(state.lang === 'vi' 
-      ? `🚀 Bắt đầu hành trình! Đã mang ${carryCount} đồ vật.` 
+    showToast(state.lang === 'vi'
+      ? `🚀 Bắt đầu hành trình! Đã mang ${carryCount} đồ vật.`
       : `🚀 Safe travels! Carrying ${carryCount} items.`, 'success');
-      
+
     renderToday();
   });
 
